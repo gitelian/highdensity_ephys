@@ -1,0 +1,243 @@
+%KK2SPIKES.m Write spikes structure from KlustaKwik output.
+%   KK2SPIKES() takes no arguements; it pulls up a dialogue box in which the user
+%   is asked to select an experiment directory. KK2SPIKES will look for a
+%   SpikeGadgets .rec file as well as directories containing KlustaKwik .kwik
+%   files. Using the information from these two files it will create "spikes"
+%   a matlab array similar to that produced by UltraMegaSorter2000 spike sorter.
+%
+%   The experiment directory is expected to have a .rec file and n directories
+%   where n is the number of electrodes used in the experiment. This directory
+%   structure is produced by running spkgad2flatarray.m
+%
+%   G. Telian
+%   Adesnik Lab
+%   UC Berkeley
+%   20160815
+%
+%   20160815 update: can process experiments that have no trials. periods of
+%   time that do NOT correspond to a trial are given a stimulus ID of zero.
+%%
+file_path = uigetdir('/media/greg/Data/Neuro/', 'Select folder to extract spike data');
+
+if file_path == 0
+    error('no directory was selected')
+end
+
+[~, fname, ~] = fileparts(file_path);
+fid = fname(1:7);
+
+rec_file_struct = dir([file_path filesep fid '*.rec']);
+if isempty(rec_file_struct)
+    error('no .rec file found')
+else
+    [~, rec_fname, ~] = fileparts(rec_file_struct.name);
+end
+
+exp_dir_struct = dir([file_path filesep fid '_e*']);
+
+if isempty(exp_dir_struct)
+    error('no electrode folders found')
+end
+
+num_exp = length(exp_dir_struct);
+
+% all variables below this are created using the above variables
+% save above varialbes to a temp file, clear all, and load them in
+save([tempdir filesep 'kk2spikes_temp.mat'], '-v7.3')
+
+for exp_i = 1:num_exp
+    exp_dir_name = exp_dir_struct(exp_i).name;
+    path2rec     = [file_path filesep rec_fname '.rec'];
+    path2kwik    = [file_path filesep exp_dir_name filesep];
+    kwik_struct  = dir([path2kwik filesep rec_fname '*.kwik']);
+    phy_struct   = dir([path2kwik filesep rec_fname '*.phy.dat']);
+    
+    if isempty(kwik_struct)
+        warning(['no .kwik file found in ' path2kwik])
+    elseif isempty(phy_struct)
+        warning(['no .phy.dat file found in ' path2kwik])
+    else
+        disp(['creating spikes file for ' exp_dir_name])
+        phy_name  = [path2kwik phy_struct.name];
+        kwik_name = [path2kwik kwik_struct.name];
+        
+
+%% add hdf5 file info and directions on how to access parameter info
+diary([path2kwik 'h5parameters.txt'])
+h5disp(kwik_name);
+diary off
+spikes.info = h5info(kwik_name);
+spikes.params = 'open test file h5parameters.txt';
+
+%% create the unit ID assignment
+%  in UltraMegaSorter this is spikes.assigns
+fprintf('\n#####\nloading in spike assignment vector for\n#####\n')
+spikes.assigns = hdf5read(kwik_name, '/channel_groups/0/spikes/clusters/main');
+
+%% create the unwrapped times array
+%  in UltraMegaSorter this is spikes.unwrapped_times
+fprintf('\n#####\nloading spikes times\n#####\n')
+spk_inds = hdf5read(kwik_name, '/channel_groups/0/spikes/time_samples');
+spikes.unwrapped_times = double(spk_inds)/30000; % divide by sampline rate to get spike times in seconds
+
+%% how to create the nx2 array where each unique cluster id is paired with its cluster group
+%  that is is the unit in the noise, multiunit, good, and unclustered
+%  category. this is the same format as in the UltraMegaSorter spike
+%  structure output.
+fprintf('\n#####\nmatching unit IDs with cluster IDs\n#####\n')
+uid = hdf5read(kwik_name, '/channel_groups/0/spikes/clusters/main');
+cluster_ids = unique(uid);
+labels = nan(length(cluster_ids), 2);
+for k = 1:length(cluster_ids)
+    test = h5info(kwik_name, ['/channel_groups/0/clusters/main/' num2str(cluster_ids(k))]);
+
+    for ind = 1:length(test.Attributes)
+        if strcmp(test.Attributes(ind).Name, 'cluster_group');
+            clst_group_ind = ind;
+        end
+    end
+
+    labels(k, :) = [cluster_ids(k), test.Attributes(clst_group_ind).Value];
+end
+
+spikes.labels = labels;
+clear labels
+
+%% create the following arrays
+%  trials, stimuli, spiketimes <-- length equals length of entire experiment
+%  stimsequence, stimulus_sample_num, stimulus_times <-- length equals
+%  number of trials
+%  in UltraMegaSorter this is spikes.trials
+fprintf('\n#####\nloading digital input lines to ID trial times and condition types\n#####\n')
+
+dio                 = readTrodesFileDigitalChannels(path2rec);
+num_samples         = length(dio.timestamps);
+state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
+num_state_changes   = length(state_change_inds);
+trials              = zeros(num_samples, 1);
+stimuli             = zeros(num_samples, 1);
+stimsequence        = zeros(num_state_changes/2, 1);
+stimulus_sample_num = zeros(num_state_changes/2, 2);
+stimulus_times      = zeros(num_state_changes/2, 2);
+spiketimes          = double(spk_inds)/30000;
+
+% only split data into trials if they exist
+if num_state_changes == 0
+
+    % use the state change indices to label each sample with the ID of the trial.
+    % digital input 1 goes high during stimulus presentation. I need to label
+    % samples before and after the stimulus period to indicate that it is a part
+    % of the trial. this way we can have a baseline period and after stimulus
+    % period for each trial.
+    trial_count     = 1;
+    dt_state_change = diff(state_change_inds); % computes time before each start, stop, start, ..., stop event
+    iti_duration    = dt_state_change(2:2:end); % -stop1 + start2 + ...
+    dt_before_after = uint64(iti_duration/2);
+    dt_before_after = [mean(dt_before_after); dt_before_after; mean(dt_before_after)];
+    progressbar('labeling trials')
+
+    for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
+        ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index
+        ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index
+        stimulus_sample_num(trial_count, :) = [state_change_inds(k), state_change_inds(k+1)];
+        stimulus_times(trial_count, :)      = double(([state_change_inds(k), state_change_inds(k+1)] - double(ind0)))/30000;
+        trials(ind0:ind1) = trial_count;
+
+
+        % determine what stimulus was presented bu counting the number of high
+        % pusles on the second digital input line.
+        num_pulses = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
+        stimuli(ind0:ind1) = num_pulses;
+        stimsequence(trial_count) = num_pulses;
+
+        % create spiketimes array here
+        % get indices of actual spike times that occured during this trial
+        % And convert the indices to time in seconds relative to the beginning of trials.
+        temp_spk_ind0 = find(spk_inds >= ind0, 1,'first');
+        temp_spk_ind1 = find(spk_inds <= ind1, 1, 'last');
+        spiketimes(temp_spk_ind0:temp_spk_ind1) = spiketimes(temp_spk_ind0:temp_spk_ind1)...
+            - double(ind0)/30000;
+        if trial_count == num_state_changes/2 % when trial_count equals the number of trials take the rest of the spikes
+            spiketimes(temp_spk_ind1:end) = spiketimes(temp_spk_ind1:end)...
+                - double(ind1)/30000;
+            spiketimes(spiketimes < 0) = 0;
+        end
+        progressbar(trial_count/(num_state_changes/2))
+        trial_count = trial_count + 1;
+    end
+    progressbar(1)
+else
+    %% do this if there are NO trials (e.g. just a continuous test recording).
+    spiketimes = spiketimes(endd) - double(spiketimes(1))/30000
+end
+
+spikes.trials              = trials(spk_inds);
+spikes.stimuli             = stimuli(spk_inds);
+spikes.spiketimes          = spiketimes;
+spikes.stimsequence        = stimsequence;
+spikes.stimulus_sample_num = stimulus_sample_num;
+spikes.stimulus_times      = stimulus_times;
+
+clear trials stimuli spiketimes stimsequence stimulus_sample_num ...
+    stimulus_times dio
+
+%% retrive waveforms for all units
+fprintf('\n#####\nloading raw data for waveform extraction\n#####\n')
+
+fid = fopen(phy_name);
+raw_data = fread(fid,'int16=>int16');
+raw_data = reshape(raw_data, 32, length(raw_data)/32);
+
+progressbar('filtering data')
+for r = 1:32
+    raw_data(r, :) = genButterFilter(raw_data(r, :));
+    progressbar(r/32)
+end
+progressbar(1)
+
+% get 15 samples before and 45 samples after (2ms worth of data)
+num_units  = size(spikes.labels, 1);
+num_spikes = length(spikes.assigns);
+waveforms  = zeros(num_spikes, 60, 32);
+
+progressbar('spike waveform extraction')
+for spike_ind = 1:num_spikes
+    % get index that this spike occurred during the experiment
+    % here index 1 corresponds to the first recorded sample NOT the first
+    % time a spike occurred!
+    i = spk_inds(spike_ind);
+
+    % get raw data and filter it.
+    % 15 samples before i and 45 after (including i)
+    % filter works on the columns of a matrix
+    % transpose so filter works on time (electrodes x time)'
+%     output = genButterFilter(double(raw_data(:, (i-15):(i+45-1))'));
+%     output = output';
+    output = raw_data(:, (i-15):(i+45-1));
+
+    % reshape output so it fits in the waveforms matrix.
+    % spike-index x samples x electrode
+    waveforms(spike_ind, :, :) = reshape(output', 60, 32);
+
+    progressbar(spike_ind/num_spikes)
+end
+
+progressbar(1)
+spikes.waveforms = waveforms;
+
+clear raw_data waveforms
+
+save([path2kwik fid '-e' num2str(exp_i) '-' spikes.mat'], 'spikes', '-v7.3')
+
+% clear all variables and load in variables in the temp file for the net iteration
+clear all
+
+if exp_i ~= num_exp
+    load([tempdir filesep 'kk2spikes_temp.mat'])
+end
+    end % end else
+end % end for loop
+
+
+
+
