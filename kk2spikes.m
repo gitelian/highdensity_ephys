@@ -51,7 +51,7 @@ for exp_i = 1:num_exp
     path2kwik    = [file_path filesep exp_dir_name filesep];
     kwik_struct  = dir([path2kwik filesep rec_fname '*.kwik']);
     phy_struct   = dir([path2kwik filesep rec_fname '*.phy.dat']);
-    
+
     if isempty(kwik_struct)
         warning(['no .kwik file found in ' path2kwik])
     elseif isempty(phy_struct)
@@ -60,7 +60,7 @@ for exp_i = 1:num_exp
         disp(['creating spikes file for ' exp_dir_name])
         phy_name  = [path2kwik phy_struct.name];
         kwik_name = [path2kwik kwik_struct.name];
-        
+
 
 %% add hdf5 file info and directions on how to access parameter info
 diary([path2kwik 'h5parameters.txt'])
@@ -71,7 +71,7 @@ spikes.params = 'open test file h5parameters.txt';
 
 %% create the unit ID assignment
 %  in UltraMegaSorter this is spikes.assigns
-fprintf('\n#####\nloading in spike assignment vector for\n#####\n')
+fprintf('\n#####\nloading in spike assignment vector\n#####\n')
 spikes.assigns = hdf5read(kwik_name, '/channel_groups/0/spikes/clusters/main');
 
 %% create the unwrapped times array
@@ -168,7 +168,8 @@ if num_state_changes == 0
     progressbar(1)
 else
     %% do this if there are NO trials (e.g. just a continuous test recording).
-    spiketimes = spiketimes(endd) - double(spiketimes(1))/30000
+    warning(['NO TRIAL DATA WAS FOUND for ' rec_fname])
+    spiketimes = spiketimes(end) - double(spiketimes(1))/30000;
 end
 
 spikes.trials              = trials(spk_inds);
@@ -227,17 +228,18 @@ spikes.waveforms = waveforms;
 
 clear raw_data waveforms
 
-save([path2kwik fid '-e' num2str(exp_i) '-' spikes.mat'], 'spikes', '-v7.3')
+save([path2kwik fid '-e' num2str(exp_i) '-spikes.mat'], 'spikes', '-v7.3')
 
 % clear all variables and load in variables in the temp file for the net iteration
-clear all
 
 if exp_i ~= num_exp
+    fprintf('\n#####\CLEARING DATA\n#####\n')
+    clear all
     load([tempdir filesep 'kk2spikes_temp.mat'])
 end
     end % end else
 end % end for loop
 
-
+clear all
 
 
