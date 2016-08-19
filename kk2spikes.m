@@ -90,7 +90,6 @@ cluster_ids = unique(uid);
 labels = nan(length(cluster_ids), 2);
 for k = 1:length(cluster_ids)
     test = h5info(kwik_name, ['/channel_groups/0/clusters/main/' num2str(cluster_ids(k))]);
-
     for ind = 1:length(test.Attributes)
         if strcmp(test.Attributes(ind).Name, 'cluster_group');
             clst_group_ind = ind;
@@ -112,17 +111,26 @@ fprintf('\n#####\nloading digital input lines to ID trial times and condition ty
 
 dio                 = readTrodesFileDigitalChannels(path2rec);
 num_samples         = length(dio.timestamps);
+% could the channel index be or OUT OF ORDER???
+if strcmp(dio.channelData(1).id, 'Din1') == 0
+    warning('***** Channel 1 does not equal Din1 *****')
+else
+    % if it is ever out of order add a loop here to find the index of the
+    % correct channel and use it below. Then add this type of check anywhere
+    % readTrodesFileDigitalChannels is used to extract digital inputs/outputs
+    fprintf('\n#####\nDIO Channel 1 equals Din1\n#####\n')
+end
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
-trials              = zeros(num_samples, 1);
-stimuli             = zeros(num_samples, 1);
-stimsequence        = zeros(num_state_changes/2, 1);
-stimulus_sample_num = zeros(num_state_changes/2, 2);
-stimulus_times      = zeros(num_state_changes/2, 2);
-spiketimes          = double(spk_inds)/30000;
+trials              = zeros(num_samples, 1, 'single');
+stimuli             = zeros(num_samples, 1, 'single');
+stimsequence        = zeros(num_state_changes/2, 1, 'single');
+stimulus_sample_num = zeros(num_state_changes/2, 2, 'single');
+stimulus_times      = zeros(num_state_changes/2, 2, 'single');
+spiketimes          = single(spk_inds)/30000;
 
 % only split data into trials if they exist
-if num_state_changes == 0
+if num_state_changes > 0
 
     % use the state change indices to label each sample with the ID of the trial.
     % digital input 1 goes high during stimulus presentation. I need to label
@@ -156,10 +164,10 @@ if num_state_changes == 0
         temp_spk_ind0 = find(spk_inds >= ind0, 1,'first');
         temp_spk_ind1 = find(spk_inds <= ind1, 1, 'last');
         spiketimes(temp_spk_ind0:temp_spk_ind1) = spiketimes(temp_spk_ind0:temp_spk_ind1)...
-            - double(ind0)/30000;
+            - single(ind0)/30000;
         if trial_count == num_state_changes/2 % when trial_count equals the number of trials take the rest of the spikes
             spiketimes(temp_spk_ind1:end) = spiketimes(temp_spk_ind1:end)...
-                - double(ind1)/30000;
+                - single(ind1)/30000;
             spiketimes(spiketimes < 0) = 0;
         end
         progressbar(trial_count/(num_state_changes/2))
@@ -169,7 +177,7 @@ if num_state_changes == 0
 else
     %% do this if there are NO trials (e.g. just a continuous test recording).
     warning(['NO TRIAL DATA WAS FOUND for ' rec_fname])
-    spiketimes = spiketimes(end) - double(spiketimes(1))/30000;
+    spiketimes = spiketimes(end) - single(spiketimes(1))/30000;
 end
 
 spikes.trials              = trials(spk_inds);
@@ -185,9 +193,9 @@ clear trials stimuli spiketimes stimsequence stimulus_sample_num ...
 %% retrive waveforms for all units
 fprintf('\n#####\nloading raw data for waveform extraction\n#####\n')
 
-fid = fopen(phy_name);
-raw_data = fread(fid,'int16=>int16');
-raw_data = reshape(raw_data, 32, length(raw_data)/32);
+aio = fopen(phy_name);
+raw_data = fread(aio,'int16=>int16');
+raw_data = reshape(single(raw_data), 32, length(raw_data)/32);
 
 progressbar('filtering data')
 for r = 1:32
@@ -199,7 +207,7 @@ progressbar(1)
 % get 15 samples before and 45 samples after (2ms worth of data)
 num_units  = size(spikes.labels, 1);
 num_spikes = length(spikes.assigns);
-waveforms  = zeros(num_spikes, 60, 32);
+waveforms  = zeros(num_spikes, 60, 32, 'single');
 
 progressbar('spike waveform extraction')
 for spike_ind = 1:num_spikes
@@ -228,12 +236,18 @@ spikes.waveforms = waveforms;
 
 clear raw_data waveforms
 
-save([path2kwik fid '-e' num2str(exp_i) '-spikes.mat'], 'spikes', '-v7.3')
+% delete file and replace it with new one
+if exist([path2kwik filesep fid '-e' num2str(exp_i) '-spikes.mat'], 'file') == 1
+    delete([path2kwik filesep fid '-e' num2str(exp_i) '-spikes.mat'])
+end
+
+fprintf(['\n#####\nSaving Data for ' fid '-e' num2str(exp_i) '\n#####\n'])
+save([path2kwik filesep fid '-e' num2str(exp_i) '-spikes.mat'], 'spikes', '-v7.3')
 
 % clear all variables and load in variables in the temp file for the net iteration
 
 if exp_i ~= num_exp
-    fprintf('\n#####\CLEARING DATA\n#####\n')
+    fprintf('\n#####\nCLEARING DATA\n#####\n')
     clear all
     load([tempdir filesep 'kk2spikes_temp.mat'])
 end
