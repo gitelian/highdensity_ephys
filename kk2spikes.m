@@ -78,7 +78,7 @@ spikes.assigns = hdf5read(kwik_name, '/channel_groups/0/spikes/clusters/main');
 %  in UltraMegaSorter this is spikes.unwrapped_times
 fprintf('\n#####\nloading spikes times\n#####\n')
 spk_inds = hdf5read(kwik_name, '/channel_groups/0/spikes/time_samples');
-spikes.unwrapped_times = double(spk_inds)/30000; % divide by sampline rate to get spike times in seconds
+spikes.unwrapped_times = single(spk_inds)/30000; % divide by sampline rate to get spike times in seconds
 
 %% how to create the nx2 array where each unique cluster id is paired with its cluster group
 %  that is is the unit in the noise, multiunit, good, and unclustered
@@ -147,10 +147,9 @@ if num_state_changes > 0
     for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
         ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index
         ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index
-        stimulus_sample_num(trial_count, :) = [state_change_inds(k), state_change_inds(k+1)];
-        stimulus_times(trial_count, :)      = double(([state_change_inds(k), state_change_inds(k+1)] - double(ind0)))/30000;
+        stimulus_sample_num(trial_count, :) = [state_change_inds(k), state_change_inds(k+1)]; % get index of trial start
+        stimulus_times(trial_count, :)      = single(([state_change_inds(k), state_change_inds(k+1)] - single(ind0)))/30000; % gets time of trial start
         trials(ind0:ind1) = trial_count;
-
 
         % determine what stimulus was presented bu counting the number of high
         % pusles on the second digital input line.
