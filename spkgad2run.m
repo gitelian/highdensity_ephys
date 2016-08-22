@@ -5,7 +5,7 @@
 %   line and the digital encoder line it calculates total run distance and
 %   stimulus ID. It saves the cummulative runspeed in a total_samplesx1
 %   vector and also breaks up running epochs corresponding to trials and
-%   saves them in a cell array. The stimulus sequence is also saved in an
+%   saves them in a cell array. The stimulus sequence is also saved in a
 %   total_samplesx1 vector.
 %
 %   G. Telian
@@ -14,7 +14,7 @@
 %   20160815
 %%
 
-file_path = uigetdir('/media/greg/Data/Neuro/', 'Select folder to extract spike data');
+file_path = uigetdir('/media/greg/Data/Neuro/', 'Select experiment folder to extract run data');
 
 if file_path == 0
     error('no directory was selected')
