@@ -40,6 +40,7 @@ num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
 stimsequence        = zeros(num_state_changes/2, 1);
+stimulus_times      = zeros(num_state_changes/2, 2, 'single');
 
 % calculate beginning and end of trials
 fprintf('\n#####\ncalculating beginning and end of trials\n#####\n');
@@ -61,12 +62,13 @@ progressbar('extracting running distance')
 for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
     ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index
     ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index
-    
-    % determine what stimulus was presented bu counting the number of high
+
+    % determine what stimulus was presented by counting the number of high
     % pusles on the second digital input line.
-    num_pulses = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
-    stimsequence(trial_count) = num_pulses;
-    
+    num_pulses                     = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
+    stimsequence(trial_count)      = num_pulses;
+    stimulus_times(trial_count, :) = single(([state_change_inds(k), state_change_inds(k+1)] - single(ind0)))/30000; % gets time of stimulus start
+
     % add run distance to run cell
     run_cell{trial_count, 1} = run_dist(ind0:ind1);
     progressbar(trial_count/(num_state_changes/2));
@@ -75,4 +77,4 @@ end
 
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
-save([file_path filesep rec_fname '.run'], 'run_cell', 'run_dist', 'stimsequence', '-v7.3')
+save([file_path filesep rec_fname '.run'], 'run_cell', 'run_dist', 'stimsequence', 'stimulus_times', '-v7.3')

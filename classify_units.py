@@ -9,19 +9,9 @@ import glob
 import os
 import re
 from scipy.interpolate import interp1d
-
-from scipy import stats
-from scipy import signal as sig
-import itertools as it
 from sklearn.cluster import KMeans
 from sklearn import mixture
-import multiprocessing as mp
-import time
-import random as rd
-from sklearn.linear_model import LogisticRegression
-from sklearn.linear_model import Ridge
-from sklearn.metrics import confusion_matrix
-from sklearn.cross_validation import KFold
+import itertools as it
 
 def load_spike_file(path):
     """
@@ -319,53 +309,7 @@ def classify_units(data_dir_path='/media/greg/Data/Neuro/'):
 ########## MAIN CODE ##########
 
 if __name__ == "__main__":
-    #update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/Data/Neuro/')
+    update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/Data/Neuro/')
     classify_units(data_dir_path='/media/greg/Data/Neuro/')
-#    # Select which experiments to analyze
-#    #fids = ['0871','0872','0873']
-#    #fids = ['1118', '1123']
-#    fids = ['0872']
-#    region = 'vM1'
-#    unit_count_list = list()
-#    for fid in fids:
-#        usr_dir = os.path.expanduser('~')
-#        sorted_spikes_dir_path = usr_dir + '/Documents/AdesnikLab/SortedSpikes/'
-#        fid_region = 'fid' + fid + '_' + region
-#        sort_file_paths = glob.glob(sorted_spikes_dir_path + fid_region + '*.mat')
-#
-#        data_dir_path = usr_dir + '/Documents/AdesnikLab/Data/'
-#        data_dir_paths  = glob.glob(data_dir_path + fid + '*.dat')
-#
-#        # #Calculate runspeed
-#        run_mat = load_run_file(data_dir_paths[0]).value
-#        vel_mat, trial_time = calculate_runspeed(run_mat)
-#
-#        # #Plot runspeed
-#        # plot_running_subset(trial_time,vel_mat,conversion=True)
-#
-#        # # Get stimulus id list
-#        stim = load_stimsequence(data_dir_paths[0])
-#
-#        # # Create running trial dictionary
-#        cond_ind_dict,trials_ran_dict = classify_run_trials(stim,vel_mat,trial_time,stim_start=1.25,stim_stop=2.50,
-#                mean_thresh=175,sigma_thresh=150,low_thresh=200,display=True)
-#        # easy running thresholds
-#        #cond_ind_dict,trials_ran_dict = classify_run_trials(stim,vel_mat,trial_time,stim_start=1.25,stim_stop=2.50,
-#        #        mean_thresh=175,sigma_thresh=150,low_thresh=100,display=True)
-#
-#        # Find the condition with the least number of trials
-#        min_run_trials  = min([sum(trials_ran_dict[x]) for x in trials_ran_dict.keys()])
-#
-#        # Put data into a Pandas dataframe
-#        df = make_df(sort_file_paths,data_dir_path,region=region)
-#        df = remove_non_modulated_units(df, trials_ran_dict, base_start=0, base_stop=1.0, stim_start=1.50, stim_stop=2.50)
-#
-#        # plot tuning curves
-#        depth = df['depth']
-#        cell_type_list = df['cell_type']
-#
-#        em, es = make_evoke_rate_array(df, trials_ran_dict, base_start=0, base_stop=1.0, stim_start=1.50,
-#                stim_stop=2.50)
-#        make_tuning_curves(em, es,depth=depth,cell_type_list=cell_type_list, control_pos=7,
-#                fig_title='Evoked Firing Rate--fid' + fid + region + ' full pad',
-#                share_yax=False)
+
+
