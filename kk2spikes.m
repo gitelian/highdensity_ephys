@@ -127,6 +127,7 @@ stimuli             = zeros(num_samples, 1, 'single');
 stimsequence        = zeros(num_state_changes/2, 1, 'single');
 stimulus_sample_num = zeros(num_state_changes/2, 2, 'single');
 stimulus_times      = zeros(num_state_changes/2, 2, 'single');
+trial_times         = zeros(num_state_changes/2, 2, 'single'); % will have time the trial starts and stops (puts bounds on the spike times)
 spiketimes          = single(spk_inds)/30000;
 
 % only split data into trials if they exist
@@ -156,6 +157,7 @@ if num_state_changes > 0
         num_pulses = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
         stimuli(ind0:ind1) = num_pulses;
         stimsequence(trial_count) = num_pulses;
+        trial_times(trial_count, :)  = (single([ind0, ind1]) - single(ind0))/30000;
 
         % create spiketimes array here
         % get indices of actual spike times that occured during this trial
@@ -185,6 +187,7 @@ spikes.spiketimes          = spiketimes;
 spikes.stimsequence        = stimsequence;
 spikes.stimulus_sample_num = stimulus_sample_num;
 spikes.stimulus_times      = stimulus_times;
+spikes.trial_times         = trial_times;
 
 clear trials stimuli spiketimes stimsequence stimulus_sample_num ...
     stimulus_times dio
@@ -204,9 +207,10 @@ end
 progressbar(1)
 
 % get 15 samples before and 45 samples after (2ms worth of data)
-num_units  = size(spikes.labels, 1);
-num_spikes = length(spikes.assigns);
-waveforms  = zeros(num_spikes, 60, 32, 'single');
+num_units       = size(spikes.labels, 1);
+num_spikes      = length(spikes.assigns);
+waveforms       = zeros(num_spikes, 60, 32, 'single');
+num_raw_samples = size(raw_data, 2);
 
 progressbar('spike waveform extraction')
 for spike_ind = 1:num_spikes
@@ -221,7 +225,13 @@ for spike_ind = 1:num_spikes
     % transpose so filter works on time (electrodes x time)'
 %     output = genButterFilter(double(raw_data(:, (i-15):(i+45-1))'));
 %     output = output';
-    output = raw_data(:, (i-15):(i+45-1));
+    if i <= 15
+        output = raw_data(:, (1:60));
+    elseif i >= num_raw_samples - 45
+        output = raw_data(:, end-60:end);
+    else
+        output = raw_data(:, (i-15):(i+45-1));
+    end
 
     % reshape output so it fits in the waveforms matrix.
     % spike-index x samples x electrode
