@@ -141,7 +141,7 @@ if num_state_changes > 0
     trial_count     = 1;
     dt_state_change = diff(state_change_inds); % computes time before each start, stop, start, ..., stop event
     iti_duration    = dt_state_change(2:2:end); % -stop1 + start2 + ...
-    dt_before_after = uint64(iti_duration/2);
+    dt_before_after = uint64(ceil(iti_duration/2));
     dt_before_after = [mean(dt_before_after); dt_before_after; mean(dt_before_after)];
     progressbar('labeling trials')
 
@@ -162,13 +162,13 @@ if num_state_changes > 0
         % create spiketimes array here
         % get indices of actual spike times that occured during this trial
         % And convert the indices to time in seconds relative to the beginning of trials.
-        temp_spk_ind0 = find(spk_inds >= ind0, 1,'first');
-        temp_spk_ind1 = find(spk_inds <= ind1, 1, 'last');
-        spiketimes(temp_spk_ind0:temp_spk_ind1) = spiketimes(temp_spk_ind0:temp_spk_ind1)...
-            - single(ind0)/30000;
+        temp_spk_ind0 = find(spk_inds > ind0, 1,'first'); % changed >= and <= to > and <
+        temp_spk_ind1 = find(spk_inds < ind1, 1, 'last');
+        spiketimes(temp_spk_ind0:temp_spk_ind1) = (single(spiketimes(temp_spk_ind0:temp_spk_ind1)) ...
+            - single(ind0))/30000;
         if trial_count == num_state_changes/2 % when trial_count equals the number of trials take the rest of the spikes
-            spiketimes(temp_spk_ind1:end) = spiketimes(temp_spk_ind1:end)...
-                - single(ind1)/30000;
+            spiketimes(temp_spk_ind1:end) = (single(spiketimes(temp_spk_ind1:end))...
+                - single(ind1))/30000;
             spiketimes(spiketimes < 0) = 0;
         end
         progressbar(trial_count/(num_state_changes/2))
