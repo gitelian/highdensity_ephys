@@ -14,7 +14,7 @@
 %   20160815
 %%
 main_data_path = '/media/greg/Data/Neuro/';
-file_path = uigetdir(main_data_path, 'Select SPIKES folder to extract neural data');
+file_path = uigetdir(main_data_path, 'Select LFP folder to extract neural data');
 
 if file_path == 0
     error('no directory was selected')

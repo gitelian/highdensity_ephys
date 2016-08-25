@@ -78,3 +78,5 @@ end
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
 save([file_path filesep rec_fname '.run'], 'run_cell', 'run_dist', 'stimsequence', 'stimulus_times', '-v7.3')
+
+clear all
