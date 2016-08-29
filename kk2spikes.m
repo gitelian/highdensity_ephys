@@ -122,13 +122,14 @@ else
 end
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
+disp(['number of state changes: ' num2str(num_state_changes)])
 trials              = zeros(num_samples, 1, 'single');
 stimuli             = zeros(num_samples, 1, 'single');
 stimsequence        = zeros(num_state_changes/2, 1, 'single');
 stimulus_sample_num = zeros(num_state_changes/2, 2, 'single');
 stimulus_times      = zeros(num_state_changes/2, 2, 'single');
 trial_times         = zeros(num_state_changes/2, 2, 'single'); % will have time the trial starts and stops (puts bounds on the spike times)
-spiketimes          = single(spk_inds)/30000;
+spiketimes          = double(spk_inds)/30000;
 
 % only split data into trials if they exist
 if num_state_changes > 0
@@ -141,7 +142,7 @@ if num_state_changes > 0
     trial_count     = 1;
     dt_state_change = diff(state_change_inds); % computes time before each start, stop, start, ..., stop event
     iti_duration    = dt_state_change(2:2:end); % -stop1 + start2 + ...
-    dt_before_after = uint64(ceil(iti_duration/2));
+    dt_before_after = uint64(iti_duration/2);
     dt_before_after = [mean(dt_before_after); dt_before_after; mean(dt_before_after)];
     progressbar('labeling trials')
 
@@ -149,7 +150,7 @@ if num_state_changes > 0
         ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index for the trial
         ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index for the trial
         stimulus_sample_num(trial_count, :) = [state_change_inds(k), state_change_inds(k+1)]; % get index of stim start/start (i.e. object starts moving into place and when it starts leaving)
-        stimulus_times(trial_count, :)      = single(([state_change_inds(k), state_change_inds(k+1)] - single(ind0)))/30000; % gets time of stimulus start
+        stimulus_times(trial_count, :)      = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus start
         trials(ind0:ind1) = trial_count;
 
         % determine what stimulus was presented bu counting the number of high
@@ -157,18 +158,17 @@ if num_state_changes > 0
         num_pulses = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
         stimuli(ind0:ind1) = num_pulses;
         stimsequence(trial_count) = num_pulses;
-        trial_times(trial_count, :)  = (single([ind0, ind1]) - single(ind0))/30000;
+        trial_times(trial_count, :)  = (double([ind0, ind1]) - double(ind0))/30000;
 
         % create spiketimes array here
         % get indices of actual spike times that occured during this trial
         % And convert the indices to time in seconds relative to the beginning of trials.
-        temp_spk_ind0 = find(spk_inds > ind0, 1,'first'); % changed >= and <= to > and <
-        temp_spk_ind1 = find(spk_inds < ind1, 1, 'last');
-        spiketimes(temp_spk_ind0:temp_spk_ind1) = (single(spiketimes(temp_spk_ind0:temp_spk_ind1)) ...
-            - single(ind0))/30000;
+        temp_spk_ind0 = find(spk_inds >= ind0, 1,'first');
+        temp_spk_ind1 = find(spk_inds <= ind1, 1, 'last');
+        spiketimes(temp_spk_ind0:temp_spk_ind1) = (double(spk_inds(temp_spk_ind0:temp_spk_ind1)) - double(ind0))/30000;
+
         if trial_count == num_state_changes/2 % when trial_count equals the number of trials take the rest of the spikes
-            spiketimes(temp_spk_ind1:end) = (single(spiketimes(temp_spk_ind1:end))...
-                - single(ind1))/30000;
+            spiketimes(temp_spk_ind1:end) = (double(spk_inds(temp_spk_ind1:end)) - double(ind1))/30000;
             spiketimes(spiketimes < 0) = 0;
         end
         progressbar(trial_count/(num_state_changes/2))
@@ -178,7 +178,7 @@ if num_state_changes > 0
 else
     %% do this if there are NO trials (e.g. just a continuous test recording).
     warning(['NO TRIAL DATA WAS FOUND for ' rec_fname])
-    spiketimes = spiketimes(end) - single(spiketimes(1))/30000;
+    spiketimes = spiketimes(end) - double(spiketimes(1));
 end
 
 spikes.trials              = trials(spk_inds);

@@ -1,4 +1,19 @@
-
+%SPKGAD2FLATARRAY.m Combine raw data files into a flattened array for spike
+%   sorting. SPKGAD2FLATARRAY will prompt the user for a spikes directory.
+%   This directory should contain the raw data saved on each channel of the
+%   electrode. It will combine this data into a flattened array (e.g.
+%   chan01time01, chan02time01,...,chan32time01, chan01time02,
+%   chan02time02,..., chan32timeN). Different electrodes should be
+%   specified in the echan_num matrix where each row contains the beginning
+%   and end 'trode' numbers containing the data for that electrode. For
+%   example, if the first electrode has 32 channels it will be broken up
+%   into 8 trodes, this is specified by having a trode number 1 and 8.
+%   A directory will be created in the experiment file for each electrode.
+%
+%   G. Telian
+%   Adesnik Lab
+%   UC Berkeley
+%   20160815
 %%
 
 main_data_path = '/media/greg/Data/Neuro/';

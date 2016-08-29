@@ -1,12 +1,9 @@
-%SPKGAD2RUN.m Write run distance structure from SpikeGadgets recording.
-%   SPKGAD2RUN() takes no arguements; it pulls up a dialogue box in which the user
-%   is asked to select an experiment directory. SPKGAD2RUN will look for a
-%   SpikeGadgets .rec file. Using the information from the digital trial
-%   line and the digital encoder line it calculates total run distance and
-%   stimulus ID. It saves the cummulative runspeed in a total_samplesx1
-%   vector and also breaks up running epochs corresponding to trials and
-%   saves them in a cell array. The stimulus sequence is also saved in an
-%   total_samplesx1 vector.
+%SPKGAD2LFP.m Write LFPs to cell array
+%   SPKGAD2LFP() takes no arguements; it pulls up a dialogue box in which the user
+%   is asked to select a .LFP directory inside of an experiment directory.
+%   SPKGAD2LFP will look for a .rec file. Using the information from the
+%   digital trial line and the digital encoder line it extracts LFPs and
+%   The stimulus sequence is also saved in an total_samplesx1 vector.
 %
 %   G. Telian
 %   Adesnik Lab

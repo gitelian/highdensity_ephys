@@ -67,7 +67,7 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     % pusles on the second digital input line.
     num_pulses                     = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
     stimsequence(trial_count)      = num_pulses;
-    stimulus_times(trial_count, :) = single(([state_change_inds(k), state_change_inds(k+1)] - single(ind0)))/30000; % gets time of stimulus start
+    stimulus_times(trial_count, :) = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus start
 
     % add run distance to run cell
     run_cell{trial_count, 1} = run_dist(ind0:ind1);
