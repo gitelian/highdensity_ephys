@@ -182,18 +182,32 @@ def update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/Data/Neur
 
                 # Upsample via cubic spline interpolation and calculate waveform measures from
                 # upsampled waveforms. This gives a more precise, less obviously discretized measurements
+                nmid  = nsamp/2 + 1
                 newsamp = nsamp*4
                 xnew = np.linspace(0, nsamp-1, newsamp)
                 f = interp1d(range(nsamp), mean_wave_temp[:,best_chan], kind='cubic')
                 ynew = f(xnew)
                 min_index  = np.argmin(ynew)
-                max_index1 = np.argmax(ynew[(23*4+1):-1])+23*4+1
-                max_index0 = np.argmax(ynew[0:(23*4+1)])
+                max_index1 = np.argmax(ynew[min_index:-1])+min_index+1
+                max_index0 = np.argmax(ynew[0:(min_index)])
                 min_value  = ynew[min_index]
                 max_value1 = ynew[max_index1]
                 max_value0 = ynew[max_index0]
                 duration   = (max_index1-min_index)/(30.0*4+1)
                 wave_ratio = (max_value1 - max_value0)/(max_value0 + max_value1)
+#                ## REMOVE THIS ##
+#                print(nmid)
+#                print('wave_ratio: ' + str(wave_ratio))
+#                print('wave_duration: ' + str(duration))
+#                plt.figure()
+#                plt.plot(ynew,'k')
+#                plt.plot(max_index1, ynew[max_index1], '*r')
+#                plt.plot(max_index0, ynew[max_index0], '*b')
+#                plt.plot(min_index, ynew[min_index], '*g')
+#                plt.show()
+#                fail()
+#                plt.pause(10)
+#                plt.close()
 
                 # Append depth, wave duration, and wave ratio to respective lists
                 depth = get_depth(best_chan,exp_info)
