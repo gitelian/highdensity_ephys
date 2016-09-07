@@ -14,7 +14,7 @@
 %   20160815
 %%
 
-file_path = uigetdir('/media/greg/Data/Neuro/', 'Select experiment folder to extract run data');
+file_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to extract run data');
 
 if file_path == 0
     error('no directory was selected')

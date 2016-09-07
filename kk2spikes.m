@@ -17,7 +17,7 @@
 %   20160815 update: can process experiments that have no trials. periods of
 %   time that do NOT correspond to a trial are given a stimulus ID of zero.
 %%
-file_path = uigetdir('/media/greg/Data/Neuro/', 'Select folder to extract spike data');
+file_path = uigetdir('/media/greg/data/neuro/', 'Select folder to extract spike data');
 
 if file_path == 0
     error('no directory was selected')
@@ -198,13 +198,13 @@ fprintf('\n#####\nloading raw data for waveform extraction\n#####\n')
 aio = fopen(phy_name);
 raw_data = fread(aio,'int16=>int16');
 raw_data = reshape(single(raw_data), 32, length(raw_data)/32);
-
-progressbar('filtering data')
-for r = 1:32
-    raw_data(r, :) = genButterFilter(raw_data(r, :));
-    progressbar(r/32)
-end
-progressbar(1)
+% TEMP COMMENTS
+% progressbar('filtering data')
+% for r = 1:32
+%     raw_data(r, :) = genButterFilter(raw_data(r, :));
+%     progressbar(r/32)
+% end
+% progressbar(1)
 
 % get 15 samples before and 45 samples after (2ms worth of data)
 num_units       = size(spikes.labels, 1);

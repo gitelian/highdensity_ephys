@@ -4,7 +4,7 @@
 
 function updateKKandSlurmFiles(exp_path, exp_name)
 %% update params.prm file
-fid = fopen('/media/greg/Data/Neuro/params.prm', 'r');
+fid = fopen('/media/greg/data/neuro/params.prm', 'r');
 i = 1;
 tline = fgetl(fid);
 txt_cell{i} = tline;
@@ -31,7 +31,7 @@ for i = 1:numel(txt_cell)
 end
 
 %% update slurm file sk.sh
-fid = fopen('/media/greg/Data/Neuro/sk.sh', 'r');
+fid = fopen('/media/greg/data/neuro/sk.sh', 'r');
 i = 1;
 tline = fgetl(fid);
 txt_cell{i} = tline;
