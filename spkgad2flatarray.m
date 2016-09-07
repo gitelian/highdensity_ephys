@@ -2,7 +2,7 @@
 %   sorting. SPKGAD2FLATARRAY will prompt the user for a spikes directory.
 %   This directory should contain the raw data saved on each channel of the
 %   electrode. It will combine this data into a flattened array (e.g.
-%   chan01time01, chan02time01,...,chan32time01, chan01time02,
+%   chan01time01, chan02time01,..., chan32time01, chan01time02,
 %   chan02time02,..., chan32timeN). Different electrodes should be
 %   specified in the echan_num matrix where each row contains the beginning
 %   and end 'trode' numbers containing the data for that electrode. For
@@ -17,10 +17,12 @@
 %%
 
 main_data_path = '/media/greg/data/neuro/';
-file_path = uigetdir(main_data_path, 'Select SPIKES folder to extract neural data');
+[file_path, ~, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
 
 if file_path == 0
     error('no directory was selected')
+elseif ~strcmp(file_ext, '.SPK')
+    error('not a .SPK directory!')
 end
 
 [fpath, fname, ~] = fileparts(file_path);
