@@ -16,7 +16,7 @@
 %   20160815
 %%
 
-main_data_path = '/media/greg/Data/Neuro/';
+main_data_path = '/media/greg/data/neuro/';
 file_path = uigetdir(main_data_path, 'Select SPIKES folder to extract neural data');
 
 if file_path == 0
@@ -25,7 +25,9 @@ end
 
 [fpath, fname, ~] = fileparts(file_path);
 fid = fname(1:7);
-echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
+% echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
+echan_num = [1,8; 9,12]; % specify the channels numbers corresponding to each electrode
+num_chan =  (echan_num(:,2)-echan_num(:,1)+1)*4;
 num_electrodes = size(echan_num, 1);
 progressbar('electrodes', 'channels')
 
@@ -46,7 +48,7 @@ for electrode = 1:num_electrodes
                 dtype = data.fields.type;
 
                 if strcmpi(dtype, 'int16')
-                    dmat = zeros(1, nsamples*32, 'int16');
+                    dmat = zeros(1, nsamples*num_chan(electrode), 'int16');
                     % TODO add more checks for different datatypes
                 else
                     error('could not identify the datatype')
@@ -55,9 +57,9 @@ for electrode = 1:num_electrodes
 
             %% add extracted data to data array
             disp(['adding channel ' num2str(chan_count)])
-            progressbar([], chan_count/32);
+            progressbar([], chan_count/num_chan(electrode));
 
-            dmat(1, chan_count:32:nsamples*32) = data.fields.data'/10;
+            dmat(1, chan_count:num_chan(electrode):nsamples*num_chan(electrode)) = data.fields.data'/10;
             chan_count = chan_count + 1;
         end
     end
@@ -75,11 +77,16 @@ for electrode = 1:num_electrodes
     fclose(fid2write);
 
     %% add files needed by KlustaKwik
+    % TODO: select probe file based on electrode configuration not just
+    % number of channels used
+    
     % template files should be located in the general data directory
     % add params.prm file with experiment name to directory
-    updateKKandSlurmFiles(new_folder_path, phy_dat_fname);
+    prb_file = [num2str(num_chan(electrode)) 'chan.prb'];
+    updateKKandSlurmFiles(new_folder_path, phy_dat_fname, prb_file);
+    
     % add probe file to directory
-    copyfile([main_data_path '32chan.prb'], [new_folder_path filesep '32chan.prb'])
+    copyfile([main_data_path prb_file], [new_folder_path filesep prb_file])
 
 end
 

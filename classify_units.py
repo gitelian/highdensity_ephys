@@ -63,7 +63,7 @@ def get_depth(best_chan, exp_info):
     depth = depth_vec[best_chan]
     return depth
 
-def update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/Data/Neuro/'):
+def update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/data/neuro/'):
     """
     Run with no arguements to overwrite spike_measures.mat file with new measurements
     Run with a list of experiment IDs (i.e. FID####) to only add measurements from
@@ -249,7 +249,7 @@ def update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/Data/Neur
     a['spike_msr_mat'] = spike_msr_mat
     sio.savemat(spike_measures_path, a)
 
-def classify_units(data_dir_path='/media/greg/Data/Neuro/'):
+def classify_units(data_dir_path='/media/greg/data/neuro/'):
 
     print('\n----- classify_units function -----')
     ##### Load in spike measures .mat file #####
@@ -323,7 +323,7 @@ def classify_units(data_dir_path='/media/greg/Data/Neuro/'):
 ########## MAIN CODE ##########
 
 if __name__ == "__main__":
-    update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/Data/Neuro/')
-    classify_units(data_dir_path='/media/greg/Data/Neuro/')
+    update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/data/neuro/')
+    classify_units(data_dir_path='/media/greg/data/neuro/')
 
 

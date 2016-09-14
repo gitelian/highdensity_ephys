@@ -22,12 +22,20 @@ function data_filt = genButterFilter(data, Fc1, Fc2, order, filterType,Fs)
 
 if nargin < 2
     %disp('Using default settings: Fc1 = 600, Fc2 = 6000, order = 4, filter_type = butter_causal')
-    order   = 4;    % Order
-    Fc1 = 600;   % First Cutoff Frequency
-    Fc2 = 6000;  % Second Cutoff Frequency
-    h  = fdesign.bandpass('N,F3dB1,F3dB2', order, Fc1, Fc2, 30000);
-    Hd = design(h, 'butter');
-    data_filt = filter(Hd, data);
+%     order   = 4;    % Order
+%     Fc1 = 600;   % First Cutoff Frequency
+%     Fc2 = 6000;  % Second Cutoff Frequency
+%     h  = fdesign.bandpass('N,F3dB1,F3dB2', order, Fc1, Fc2, 30000);
+%     Hd = design(h, 'butter');
+%     data_filt = filter(Hd, data);
+    
+    %construct parameters for filter
+    disp('using old school scotts way of filtering')
+    Wp = [ 800  8000] * 2 / Fs;
+    Ws = [ 600 10000] * 2 / Fs;
+    [N,Wn] = buttord( Wp, Ws, 3, 20);
+    [B,A] = butter(N,Wn);
+    filtfilt( B, A, data)
     return
 end
 

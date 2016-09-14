@@ -10,7 +10,7 @@
 %   UC Berkeley
 %   20160815
 %%
-main_data_path = '/media/greg/Data/Neuro/';
+main_data_path = '/media/greg/data/neuro/';
 file_path = uigetdir(main_data_path, 'Select LFP folder to extract neural data');
 
 if file_path == 0
