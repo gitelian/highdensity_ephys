@@ -17,10 +17,13 @@
 %%
 
 main_data_path = '/media/greg/data/neuro/';
-file_path = uigetdir(main_data_path, 'Select SPIKES folder to extract neural data');
+[file_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
+file_path = [file_path filesep file_name file_ext];
 
 if file_path == 0
     error('no directory was selected')
+elseif ~strcmp(file_ext, '.SPK')
+    error('not a .SPK directory!')
 end
 
 [fpath, fname, ~] = fileparts(file_path);

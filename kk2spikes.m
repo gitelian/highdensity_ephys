@@ -51,6 +51,8 @@ for exp_i = 1:num_exp
     path2kwik    = [file_path filesep exp_dir_name filesep];
     kwik_struct  = dir([path2kwik filesep rec_fname '*.kwik']);
     phy_struct   = dir([path2kwik filesep rec_fname '*.phy.dat']);
+    prb_struct   = dir([path2kwik filesep '*.prb'])
+    num_chan     = str2double(prb_struct.name(1:2));
 
     if isempty(kwik_struct)
         warning(['no .kwik file found in ' path2kwik])
@@ -197,19 +199,19 @@ fprintf('\n#####\nloading raw data for waveform extraction\n#####\n')
 
 aio = fopen(phy_name);
 raw_data = fread(aio,'int16=>int16');
-raw_data = reshape(single(raw_data), 32, length(raw_data)/32);
+raw_data = reshape(single(raw_data), num_chan, length(raw_data)/num_chan);
 % TEMP COMMENTS
-% progressbar('filtering data')
-% for r = 1:32
-%     raw_data(r, :) = genButterFilter(raw_data(r, :));
-%     progressbar(r/32)
-% end
-% progressbar(1)
+progressbar('filtering data')
+for r = 1:num_chan
+    raw_data(r, :) = single(neuro_filt(raw_data(r, :)));
+    progressbar(r/num_chan)
+end
+progressbar(1)
 
 % get 15 samples before and 45 samples after (2ms worth of data)
 num_units       = size(spikes.labels, 1);
 num_spikes      = length(spikes.assigns);
-waveforms       = zeros(num_spikes, 60, 32, 'single');
+waveforms       = zeros(num_spikes, 60, num_chan, 'single');
 num_raw_samples = size(raw_data, 2);
 
 progressbar('spike waveform extraction')
@@ -223,19 +225,19 @@ for spike_ind = 1:num_spikes
     % 15 samples before i and 45 after (including i)
     % filter works on the columns of a matrix
     % transpose so filter works on time (electrodes x time)'
-%     output = genButterFilter(double(raw_data(:, (i-15):(i+45-1))'));
+%     output = neuro_filt(double(raw_data(:, (i-15):(i+45-1))'));
 %     output = output';
     if i <= 15
         output = raw_data(:, (1:60));
     elseif i >= num_raw_samples - 45
-        output = raw_data(:, end-60:end);
+        output = raw_data(:, end-60+1:end);
     else
         output = raw_data(:, (i-15):(i+45-1));
     end
 
     % reshape output so it fits in the waveforms matrix.
     % spike-index x samples x electrode
-    waveforms(spike_ind, :, :) = reshape(output', 60, 32);
+    waveforms(spike_ind, :, :) = reshape(output', 60, num_chan);
 
     progressbar(spike_ind/num_spikes)
 end
@@ -263,6 +265,10 @@ end
     end % end else
 end % end for loop
 
+send_text_message(...
+    '3237127849',...
+    'sprint',...
+    'kk2spikes COMPLETE',...
+    ['kk2spikes for ' fname ' has finished'])
+
 clear all
-
-
