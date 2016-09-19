@@ -11,10 +11,13 @@
 %   20160815
 %%
 main_data_path = '/media/greg/data/neuro/';
-file_path = uigetdir(main_data_path, 'Select LFP folder to extract neural data');
+[file_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select LFP folder to extract neural data'));
+file_path = [file_path filesep file_name file_ext];
 
 if file_path == 0
     error('no directory was selected')
+elseif ~strcmp(file_ext, '.LFP')
+    error('not a .SPK directory!')
 end
 
 [fpath, fname, ~] = fileparts(file_path);
@@ -108,4 +111,10 @@ for electrode = 1:num_electrodes
 end % n electrode loop
 
 progressbar(1)
+send_text_message(...
+    '3237127849',...
+    'sprint',...
+    'spkgad2lfp COMPLETE',...
+    ['spkgad2lfp for ' fname ' has finished'])
+
 clear all
