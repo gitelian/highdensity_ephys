@@ -52,6 +52,7 @@ for exp_i = 1:num_exp
     kwik_struct  = dir([path2kwik filesep rec_fname '*.kwik']);
     phy_struct   = dir([path2kwik filesep rec_fname '*.phy.dat']);
     prb_struct   = dir([path2kwik filesep '*.prb'])
+    disp('USING PROBE FILE TO GET NUMBER OF CONTACTS OF ELECTRODE!')
     num_chan     = str2double(prb_struct.name(1:2));
 
     if isempty(kwik_struct)
