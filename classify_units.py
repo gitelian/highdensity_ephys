@@ -117,6 +117,8 @@ def update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/data/neur
         for fid_name in fid_list:
             path2spikes_files.extend(np.sort(glob.glob(data_dir_path + fid_name + '*/' + 'FID*_e*/' + '*spikes.mat')))
 
+    #TODO: check to make sure the path exists!!! Error out if it doesn't
+
     ##### ITERATE THROUGH ALL SPIKES.MAT FILES AND UPDATE SPIKE_MEASURES AS NECESSARY #####
 
     for count, spikes_path in enumerate(path2spikes_files):
@@ -233,7 +235,7 @@ def update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/data/neur
         print('clearing up memory: removing spikes file data')
         del labels, assigns, trials, spike_times, waves, nsamp, nchan, ids, nunit, unit_type
 
-    # if the first row is remove it by skipping it with slicing
+    # if the first row is 0 remove it by skipping it with slicing
     if np.count_nonzero(spike_msr_mat[0, :]) is 0:
         spike_msr_mat = spike_msr_mat[1::, :]
 
@@ -323,6 +325,7 @@ def classify_units(data_dir_path='/media/greg/data/neuro/'):
 ########## MAIN CODE ##########
 
 if __name__ == "__main__":
+    #TODO replace file path seps with filesep equivalent
     update_spikes_measures_mat(fid_list=[], data_dir_path='/media/greg/data/neuro/')
     classify_units(data_dir_path='/media/greg/data/neuro/')
 
