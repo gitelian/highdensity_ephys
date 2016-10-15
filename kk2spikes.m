@@ -51,8 +51,9 @@ for exp_i = 1:num_exp
     path2kwik    = [file_path filesep exp_dir_name filesep];
     kwik_struct  = dir([path2kwik filesep rec_fname '*.kwik']);
     phy_struct   = dir([path2kwik filesep rec_fname '*.phy.dat']);
-    prb_struct   = dir([path2kwik filesep '*.prb'])
+    prb_struct   = dir([path2kwik filesep '*.prb']);
     disp('USING PROBE FILE TO GET NUMBER OF CONTACTS OF ELECTRODE!')
+    disp(prb_struct.name)
     num_chan     = str2double(prb_struct.name(1:2));
 
     if isempty(kwik_struct)
@@ -66,9 +67,9 @@ for exp_i = 1:num_exp
 
 
 %% add hdf5 file info and directions on how to access parameter info
-diary([path2kwik 'h5parameters.txt'])
+diary([path2kwik 'h5parameters.txt']);
 h5disp(kwik_name);
-diary off
+diary off;
 spikes.info = h5info(kwik_name);
 spikes.params = 'open test file h5parameters.txt';
 
@@ -94,7 +95,7 @@ labels = nan(length(cluster_ids), 2);
 for k = 1:length(cluster_ids)
     test = h5info(kwik_name, ['/channel_groups/0/clusters/main/' num2str(cluster_ids(k))]);
     for ind = 1:length(test.Attributes)
-        if strcmp(test.Attributes(ind).Name, 'cluster_group');
+        if strcmp(test.Attributes(ind).Name, 'cluster_group')
             clst_group_ind = ind;
         end
     end
@@ -200,7 +201,10 @@ fprintf('\n#####\nloading raw data for waveform extraction\n#####\n')
 
 aio = fopen(phy_name);
 raw_data = fread(aio,'int16=>int16');
-raw_data = reshape(single(raw_data), num_chan, length(raw_data)/num_chan);
+fclose(aio);
+clear aio
+raw_data = reshape(raw_data, num_chan, length(raw_data)/num_chan);
+% raw_data = reshape(single(raw_data), num_chan, length(raw_data)/num_chan);
 % TEMP COMMENTS
 progressbar('filtering data')
 for r = 1:num_chan
@@ -265,11 +269,5 @@ if exp_i ~= num_exp
 end
     end % end else
 end % end for loop
-
-send_text_message(...
-    '3237127849',...
-    'sprint',...
-    'kk2spikes COMPLETE',...
-    ['kk2spikes for ' fname ' has finished'])
 
 clear all

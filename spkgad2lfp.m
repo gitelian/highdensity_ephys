@@ -17,7 +17,7 @@ file_path = [file_path filesep file_name file_ext];
 if file_path == 0
     error('no directory was selected')
 elseif ~strcmp(file_ext, '.LFP')
-    error('not a .SPK directory!')
+    error('not a .LFP directory!')
 end
 
 [fpath, fname, ~] = fileparts(file_path);

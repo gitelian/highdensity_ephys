@@ -3,7 +3,7 @@
 function spkgad2wt()
 
 %% load digital line data
-file_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to extract run data');
+file_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to extract whisker tracking data');
 
 if file_path == 0
     error('no directory was selected')
@@ -62,7 +62,7 @@ frame_inds   = find(diff(hsv_ttl_filt > 0.5) == 1)+1;
 frame_diff = length(frame_inds) - length(wt);
 if abs(frame_diff) > 1
     error('number of ttl pulses and wt frames NOT EQUAL')
-elseif frame_diff = 1
+elseif frame_diff == 1
    frame_inds(1) = [];
 elseif frame_diff == -1
      frame_inds(1) = [];
