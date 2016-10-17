@@ -37,10 +37,10 @@ if isempty(exp_dir_struct)
     error('no electrode folders found')
 end
 
-temp_spikes_dir = dir([data_directory filesep 'temp_spikes']);
+temp_spikes_dir = [data_directory filesep 'temp_spikes'];
 
 if ~exist(temp_spikes_dir, 'dir')
-    warning(fprintf('no temp_spikes directory found!\nCreating directory'))
+    warning(sprintf('no temp_spikes directory found!\nCreating directory'))
     mkdir(temp_spikes_dir)
 end
 
@@ -114,10 +114,9 @@ clear labels
 %  stimsequence, stimulus_sample_num, stimulus_times <-- length equals
 %  number of trials in UltraMegaSorter this is spikes.trial
 
+num_samples = length(spk_inds);
 trial_times = zeros(num_samples, 1, 'single');
-num_samples = length(spk_inds); %%%%%
 
-disp(['number of trials: ' num2str(num_trials)])
 trials            = zeros(num_samples, 1, 'single');
 stimuli           = zeros(num_samples, 1, 'single');
 spiketimes        = double(spk_inds)/30000;
@@ -126,11 +125,10 @@ spiketimes        = double(spk_inds)/30000;
 %% do this if there are NO trials (e.g. just a continuous test recording).
 spiketimes = spiketimes(end) - double(spiketimes(1));
 
-spikes.trials       = trials(spk_inds);
-spikes.stimuli      = stimuli(spk_inds);
-spikes.spiketimes   = spiketimes;
-spikes.stimsequence = stimsequence;
-spikes.trial_times  = trial_times;
+spikes.trials      = trials;
+spikes.stimuli     = stimuli;
+spikes.spiketimes  = spiketimes;
+spikes.trial_times = trial_times;
 
 clear trials stimuli spiketimes stimsequence
 

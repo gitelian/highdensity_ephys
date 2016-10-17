@@ -60,7 +60,7 @@ def load_spike_file(path):
     return labels, assigns, trials, spike_times, waves, nsamp, nchan, ids, nunit, unit_type, trial_times, unwrapped
 
 ## get directory list
-os.chdir('/Users/Greg/Desktop/spikes/')
+os.chdir('/media/greg/data/neuro/temp_spikes/')
 spike_files = list()
 for (dirpath, dirnames, filenames) in os.walk('.'):
     glob_list = glob.glob(dirpath + os.path.sep + '*spikes.mat')
@@ -162,41 +162,41 @@ p6.y_range = Range1d(start=-10, end=1000)
 
 # Set up widgets
 ## select box
+spike_files = ['---select---'] + spike_files
 sel_exp = Select(title='Spikes files:', value=spike_files[0], options=spike_files)
-sel_unit = Select(title='Unit:', value='0', options=['a', 'b'])
+sel_unit = Select(title='Unit:', value='0', options=['---select---'])
 
 ##################################################################
 
 # Set up callbacks
 def update_title(attrname, old, new):
-    os.chdir('/Users/Greg/Desktop/spikes/')
-    p5.title.text = 'Loading: ' + sel_exp.value[2:]
-    p5.border_fill_color = 'red'
-    p5.border_fill_alpha = 0.4
+    os.chdir('/media/greg/data/neuro/temp_spikes/')
+    if sel_exp.value == '---select---':
+        print('can\'t load "select" there aren\'t any spikes there')
+    else:
+        p5.title.text = 'Loading: ' + sel_exp.value[2:]
+        p5.border_fill_color = 'red'
+        p5.border_fill_alpha = 0.4
 
-    fpath = os.path.join(os.path.realpath('.'), sel_exp.value[2:])
+        fpath = os.path.join(os.path.realpath('.'), sel_exp.value[2:])
+        labels, assigns, trials, spike_times, waves, nsamp, nchan, ids, nunit,\
+                unit_type, trial_times, unwrapped = load_spike_file(fpath)
+        p5.title.text = 'Loaded and ready to go: ' + os.path.basename(fpath)
+        p5.border_fill_color = 'green'
+        p5.border_fill_alpha = 0.4
 
+        gu_inds   = np.where(np.logical_and(labels[:, 1] > 0, labels[:, 1] < 3) == True)[0]
+        gu_ids    = labels[gu_inds, 0]
+        global labels, assigns, trials, spike_times, waves, nsamp, nchan, ids, nunit, unit_type, trial_times, unwrapped
+        global gu_ids
 
-    labels, assigns, trials, spike_times, waves, nsamp, nchan, ids, nunit,\
-            unit_type, trial_times, unwrapped = load_spike_file(fpath)
-    p5.title.text = 'Loaded and ready to go: ' + os.path.basename(fpath)
-    p5.border_fill_color = 'green'
-    p5.border_fill_alpha = 0.4
-
-    # p5.title_text_color = 'green'
-    gu_inds   = np.where(np.logical_and(labels[:, 1] > 0, labels[:, 1] < 3) == True)[0]
-    gu_ids    = labels[gu_inds, 0]
-    global labels, assigns, trials, spike_times, waves, nsamp, nchan, ids, nunit, unit_type, trial_times, unwrapped
-    global gu_ids
-
-    update_unit_select(attrname, old, new)
+        update_unit_select(attrname, old, new)
 sel_exp.on_change('value', update_title)
 
 def update_figure01(attrname, old, new):
-    # default values
     p5.border_fill_color = 'red'
     p5.border_fill_alpha = 0.4
-    binsize = 1
+    binsize   = 1
     spk_times = unwrapped[np.where(assigns == gu_ids[uind])[0]]/60.0
     bins      = np.arange(0, unwrapped[-1]/(60.0), binsize)
     counts, pltbins = np.histogram(spk_times, bins=bins)
@@ -240,7 +240,6 @@ def update_figure03(attrname, old, new):
     
 
 def update_figure04(attrname, old, new):
-    print('fig 4')
     wave_inds   = np.random.choice(np.ravel(np.where(assigns == gu_ids[uind])[0]), size=1000, replace=False, p=None)
     wave_select = waves[wave_inds, :, :]
     mean_wave   = np.mean(wave_select, axis=0)
@@ -251,7 +250,6 @@ def update_figure04(attrname, old, new):
     max_wave = mean_wave[:, np.argmin(np.min(mean_wave, axis=0))]
     yerr = std_wave[:, np.argmin(np.min(mean_wave, axis=0))]
     offset = np.arange(0, mean_wave.shape[0])
-    print('after offset')
     best_wave_chan_index = np.argmin(np.min(mean_wave, axis=0))
     all_waves = waves[wave_inds, :, best_wave_chan_index] # shoule be a matrix (num waves x time samples)
     xs = [x.tolist() for i in range(all_waves.shape[0])]
@@ -356,14 +354,17 @@ def update_figure06(attrname, old, new):
 
 def update_unit_select(attrname, old, new):
     gu_ids_list = [str(int(x)) for x in gu_ids]
+    gu_ids_list = ['---select---'] + gu_ids_list
     sel_unit.options = gu_ids_list
-    uind = gu_ids_list.index(str(sel_unit.value))
+    uind = gu_ids_list.index(str(sel_unit.value)) - 1
     global uind
-    update_figure01(attrname, old, new)
-    update_figure02(attrname, old, new)
-    update_figure03(attrname, old, new)
-    update_figure04(attrname, old, new)
-    update_figure06(attrname, old, new)
+
+    if uind > -1:
+        update_figure01(attrname, old, new)
+        update_figure02(attrname, old, new)
+        update_figure03(attrname, old, new)
+        update_figure04(attrname, old, new)
+        update_figure06(attrname, old, new)
 
 sel_unit.on_change('value', update_unit_select)
 
