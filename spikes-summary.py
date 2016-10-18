@@ -60,7 +60,9 @@ def load_spike_file(path):
     return labels, assigns, trials, spike_times, waves, nsamp, nchan, ids, nunit, unit_type, trial_times, unwrapped
 
 ## get directory list
-os.chdir('/media/greg/data/neuro/temp_spikes/')
+starting_dir = '/media/greg/data/neuro/temp_spikes/'
+global starting_dir
+os.chdir(starting_dir)
 spike_files = list()
 for (dirpath, dirnames, filenames) in os.walk('.'):
     glob_list = glob.glob(dirpath + os.path.sep + '*spikes.mat')
@@ -170,7 +172,7 @@ sel_unit = Select(title='Unit:', value='0', options=['---select---'])
 
 # Set up callbacks
 def update_title(attrname, old, new):
-    os.chdir('/media/greg/data/neuro/temp_spikes/')
+    os.chdir(starting_dir)
     if sel_exp.value == '---select---':
         print('can\'t load "select" there aren\'t any spikes there')
     else:
