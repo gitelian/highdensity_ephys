@@ -1,11 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy as sp
 import scipy.io as sio
 import glob
 import os
 import h5py
-from sklearn.cluster import KMeans
 from warnings import warn
 
 from bokeh.io import curdoc, gridplot
@@ -19,10 +17,7 @@ from bokeh.models import Range1d
 from bokeh.models import LogColorMapper, LogTicker, ColorBar, LinearColorMapper
 from matplotlib.mlab import bivariate_normal
 from bokeh.models import Image
-
-
 from bokeh.charts import HeatMap, output_file, show
-import pandas as pd
 
 #####
 max_counts = list()
