@@ -97,10 +97,12 @@ class kwik_gui_custom(object):
                 plt.xlabel('time (s)')
                 plt.ylabel('peak-to-peak amplitude')
                 plt.title('amplitude and electrode drift')
+                ax1.set_ylim(0, 150)
 
                 ax2 = ax[1].twinx()
                 ax2.plot(wave_times, wave_drift, color='#ff0000', alpha=0.5)
                 ax2.set_ylabel('electrode contact')
+                ax2.set_ylim(0, 32)
 
                 plt.show()
 
