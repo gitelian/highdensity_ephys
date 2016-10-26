@@ -1,0 +1,2 @@
+*.py linguist-language=Python
+*.mat linguist-language=MATLAB
