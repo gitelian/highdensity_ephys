@@ -4,6 +4,7 @@
 
 function updateKKandSlurmFiles(exp_path, exp_name, prb_file)
 %% update params.prm file
+% TODO: change hard-coded paths. get path to data directory from input
 fid = fopen('/media/greg/data/neuro/params.prm', 'r');
 i = 1;
 tline = fgetl(fid);
