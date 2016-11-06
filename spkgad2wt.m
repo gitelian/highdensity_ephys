@@ -63,9 +63,9 @@ frame_diff = length(frame_inds) - length(wt);
 if abs(frame_diff) > 1
     error('number of ttl pulses and wt frames NOT EQUAL')
 elseif frame_diff == 1
-   frame_inds(1) = [];
+   frame_inds(end) = [];
 elseif frame_diff == -1
-     frame_inds(1) = [];
+     frame_inds(end) = [];
 end
 
 %%
