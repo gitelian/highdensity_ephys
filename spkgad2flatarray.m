@@ -28,8 +28,8 @@ end
 
 [fpath, fname, ~] = fileparts(file_path);
 fid = fname(1:7);
-% echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
-echan_num = [1,8; 9,12]; % specify the channels numbers corresponding to each electrode
+echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
+% echan_num = [1,8; 9,12]; % specify the channels numbers corresponding to each electrode
 num_chan =  (echan_num(:,2)-echan_num(:,1)+1)*4;
 num_electrodes = size(echan_num, 1);
 progressbar('electrodes', 'channels')
