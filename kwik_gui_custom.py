@@ -5,6 +5,7 @@ from os import path
 from phycontrib.kwik_gui import KwikController
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import sys
 
 class kwik_gui_custom(object):
 
@@ -23,6 +24,9 @@ class kwik_gui_custom(object):
                 self.c = c
                 self.gui = gui
                 self.enable_plot = True
+                f, ax = plt.subplots(1, 2, figsize=(16, 6))
+                self.f = f
+                self.ax = ax
             except:
                 raise ValueError('Cannot open gui!--go find Greg!')
         else:
@@ -39,7 +43,8 @@ class kwik_gui_custom(object):
             None
         else:
             # close any open plots
-            plt.close()
+            #plt.gca()
+            #plt.close('all')
             if cluster_id:
                 # get indices of specified cluster
                 uind = np.where(self.c.spike_clusters == cluster_id)[0]
@@ -73,14 +78,19 @@ class kwik_gui_custom(object):
                 samp_diff  = wave_times.shape[0] - avg_amp.shape[0]
                 t_avg_amp  = wave_times[0:-samp_diff]
 
-                # prepare figure
                 rp_height = np.max(counts)*1.1
-                cluster_group = self.c.cluster_groups[cluster_id]
-                f, ax = plt.subplots(1, 2, figsize=(16, 6))
+                try:
+                    cluster_group = self.c.cluster_groups[cluster_id]
+                except:
+                    cluster_group = 'in progress'
+
+                # prepare figure
+#                f, ax = plt.subplots(1, 2, figsize=(16, 6))
 
                 # isi distribution
                 ax0 = plt.subplot(1, 2, 1)
-                plt.bar(bins[:-1], counts, width=bin_size, color='#4f8fff',\
+                ax0.clear()
+                ax0.bar(bins[:-1], counts, width=bin_size, color='#4f8fff',\
                         align='center', edgecolor='none')
                 ax0.add_patch(
                         patches.Rectangle((0.0, 0.0), 0.0015, rp_height,
@@ -93,17 +103,22 @@ class kwik_gui_custom(object):
 
                 # amplitude and drift vs time
                 ax1 = plt.subplot(1, 2, 2)
-                plt.plot(t_avg_amp, avg_amp, color='#4f8fff', linewidth=2)
+                ax1.clear()
+                ax1.plot(t_avg_amp, avg_amp, color='#4f8fff', linewidth=2)
                 plt.xlabel('time (s)')
                 plt.ylabel('peak-to-peak amplitude')
                 plt.title('amplitude and electrode drift')
                 ax1.set_ylim(0, 150)
 
-                ax2 = ax[1].twinx()
+                ax2 = self.ax[1].twinx()
+                ax2.clear()
                 ax2.plot(wave_times, wave_drift, color='#ff0000', alpha=0.5)
                 ax2.set_ylabel('electrode contact')
                 ax2.set_ylim(0, 32)
 
                 plt.show()
+                self.f.canvas.draw()
 
 
+print(sys.argv)
+kwik = kwik_gui_custom(sys.argv[1])

@@ -1,0 +1,12 @@
+
+G. Telian
+Adesnik Lab
+20161108
+
+1. change directory to the Phy directory where kwik_gui_custom.py is located
+2. source activate phy (omit activate on Windows)
+3. run the proceeding line of code. start iPython and replace the path with the path
+   to the kwik file you wish to manually sort.
+
+ipython --pylab
+%run kwik_gui_custom.py {'/media/greg/data/neuro/FID1318_20161106/FID1318_e1/FID1318-e1.kwik'}
