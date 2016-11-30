@@ -8,5 +8,11 @@ Adesnik Lab
 3. run the proceeding line of code. start iPython and replace the path with the path
    to the kwik file you wish to manually sort.
 
+example:
 ipython --pylab
 %run kwik_gui_custom.py {'/media/greg/data/neuro/FID1318_20161106/FID1318_e1/FID1318-e1.kwik'}
+
+general procedure:
+cd /path/to/kwik_gui_custom.py/directory (omitt this step is kwik_gui_custom.py is on your system path).
+ipython --pylab
+%run kwik_gui_custom.py {'path/to/kwik/file/kwik_file_name'}

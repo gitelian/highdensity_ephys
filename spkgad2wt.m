@@ -61,7 +61,9 @@ frame_inds   = find(diff(hsv_ttl_filt > 0.5) == 1)+1;
 
 frame_diff = length(frame_inds) - length(wt);
 if abs(frame_diff) > 1
-    error('number of ttl pulses and wt frames NOT EQUAL')
+    warning('number of ttl pulses and wt frames NOT EQUAL')
+    frame_inds(end-frame_diff+1:end) = []; % if the difference isn't that big
+    % remove the last few indices.
 elseif frame_diff == 1
    frame_inds(end) = [];
 elseif frame_diff == -1
@@ -69,7 +71,7 @@ elseif frame_diff == -1
 end
 
 %%
-trial_count     = 1;
+trial_count = 1;
 progressbar('splitting whisker tracking data by trials')
 
 for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
@@ -98,7 +100,7 @@ send_text_message(...
     '3237127849',...
     'sprint',...
     'spkgad2wt COMPLETE',...
-    ['spkgad2wt for ' fname ' has finished'])
+    ['spkgad2wt for ' fname ' has finished' ' frame difference: ' num2str(frame_diff)])
 clear all
 
 

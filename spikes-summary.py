@@ -152,7 +152,7 @@ p6.scatter('x', 'y', source=s6, marker='o', size=0.25,
 p6.xaxis.axis_label = 'pre-isi (msec)'
 p6.yaxis.axis_label = 'post-isi (msec)'
 p6.x_range = Range1d(start=-10, end=1000)
-p6.y_range = Range1d(start=-10, end=1000) 
+p6.y_range = Range1d(start=-10, end=1000)
 
 
 ##################################################################
@@ -184,6 +184,7 @@ def update_title(attrname, old, new):
 
         gu_inds   = np.where(np.logical_and(labels[:, 1] > 0, labels[:, 1] < 3) == True)[0]
         gu_ids    = labels[gu_inds, 0]
+        unit_type = labels[gu_inds, 1]
         global labels, assigns, trials, spike_times, waves, nsamp, nchan, ids, nunit, unit_type, trial_times, unwrapped
         global gu_ids
 
@@ -199,6 +200,8 @@ def update_figure01(attrname, old, new):
     counts, pltbins = np.histogram(spk_times, bins=bins)
     counts = counts/(60.0)
 
+    unit_type_dict = {0:'noise:', 1:'multi-unit', 2:'single-unit', 3:'unsorted'}
+    p1.title.text = "firing rate across entire experiment -- unit type: " + str(unit_type_dict[unit_type[uind]])
     s1.data = dict(left=pltbins[1:], right=pltbins[:-1], top=counts, bottom=np.zeros(len(counts)))
 
 def update_figure02(attrname, old, new):
