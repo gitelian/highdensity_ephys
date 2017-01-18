@@ -39,6 +39,13 @@ if isempty(exp_dir_struct)
     error('no electrode folders found')
 end
 
+dio_file_struct = dir([file_path filesep fid '*_dio.mat']); % change to *_dio.mat; change rec to dio
+if isempty(dio_file_struct)
+    error('no dio file found')
+else
+    [~, dio_fname, ~] = fileparts(dio_file_struct.name);
+end
+
 num_exp = length(exp_dir_struct);
 
 % all variables below this are created using the above variables
@@ -47,7 +54,8 @@ save([tempdir filesep 'kk2spikes_temp.mat'], '-v7.3')
 
 for exp_i = 1:num_exp
     exp_dir_name = exp_dir_struct(exp_i).name;
-    path2rec     = [file_path filesep rec_fname '.rec'];
+%     path2rec     = [file_path filesep rec_fname '.rec'];
+    path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
     path2kwik    = [file_path filesep exp_dir_name filesep];
     kwik_struct  = dir([path2kwik filesep rec_fname '*.kwik']);
     phy_struct   = dir([path2kwik filesep rec_fname '*.phy.dat']);
@@ -113,7 +121,9 @@ clear labels
 %  in UltraMegaSorter this is spikes.trials
 fprintf('\n#####\nloading digital input lines to ID trial times and condition types\n#####\n')
 
-dio                 = readTrodesFileDigitalChannels(path2rec);
+% dio                 = readTrodesFileDigitalChannels(path2rec);
+load(path2dio)
+
 num_samples         = length(dio.timestamps);
 % could the channel index be or OUT OF ORDER???
 if strcmp(dio.channelData(1).id, 'Din1') == 0

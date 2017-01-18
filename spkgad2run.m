@@ -23,19 +23,20 @@ end
 [~, fname, ~] = fileparts(file_path);
 fid = fname(1:7);
 
-rec_file_struct = dir([file_path filesep fid '*.rec']);
-if isempty(rec_file_struct)
-    error('no .rec file found')
+% rec_file_struct = dir([file_path filesep fid '*.rec']); % change to *_dio.mat; change rec to dio
+dio_file_struct = dir([file_path filesep fid '*_dio.mat']); % change to *_dio.mat; change rec to dio
+if isempty(dio_file_struct)
+    error('no dio file found')
 else
-    [~, rec_fname, ~] = fileparts(rec_file_struct.name);
+    [~, dio_fname, ~] = fileparts(dio_file_struct.name);
 end
 
-
-path2rec     = [file_path filesep rec_fname '.rec'];
+path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
 
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
-dio                 = readTrodesFileDigitalChannels(path2rec);
+% dio                 = readTrodesFileDigitalChannels(path2rec); % replace with load(path2dio)
+load(path2dio)
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
@@ -77,10 +78,6 @@ end
 
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
-save([file_path filesep rec_fname '.run'], 'run_cell', 'run_dist', 'stimsequence', 'stimulus_times', '-v7.3')
-send_text_message(...
-    '3237127849',...
-    'sprint',...
-    'spkgad2run COMPLETE',...
-    ['spkgad2run for ' fname ' has finished'])
+save([file_path filesep dio_fname '.run'], 'run_cell', 'run_dist', 'stimsequence', 'stimulus_times', '-v7.3')
+
 clear all

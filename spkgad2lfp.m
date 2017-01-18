@@ -13,6 +13,7 @@
 main_data_path = '/media/greg/data/neuro/';
 [file_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select LFP folder to extract neural data'));
 file_path = [file_path filesep file_name file_ext];
+dio_path = fileparts(file_path);
 
 if file_path == 0
     error('no directory was selected')
@@ -25,17 +26,22 @@ fid = fname(1:7);
 echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
 num_electrodes = size(echan_num, 1);
 
-rec_file_struct = dir([fpath filesep fid '*.rec']);
-if isempty(rec_file_struct)
-    error('no .rec file found')
+% load trial digital line and find trial start and end indices
+fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
+% dio                 = readTrodesFileDigitalChannels(path2rec); % old way
+% rec_file_struct = dir([file_path filesep fid '*.rec']); % change to *_dio.mat; change rec to dio
+dio_file_struct = dir([dio_path filesep fid '*_dio.mat']); % change to *_dio.mat; change rec to dio
+if isempty(dio_file_struct)
+    error('no dio file found')
 else
-    [~, rec_fname, ~] = fileparts(rec_file_struct.name);
+    [~, dio_fname, ~] = fileparts(dio_file_struct.name);
 end
-path2rec = [fpath filesep rec_fname '.rec'];
+
+path2dio     = [dio_path filesep dio_fname '.mat']; % change to .mat
 
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
-dio                 = readTrodesFileDigitalChannels(path2rec);
+load(path2dio)
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
@@ -111,10 +117,5 @@ for electrode = 1:num_electrodes
 end % n electrode loop
 
 progressbar(1)
-send_text_message(...
-    '3237127849',...
-    'sprint',...
-    'spkgad2lfp COMPLETE',...
-    ['spkgad2lfp for ' fname ' has finished'])
 
 clear all

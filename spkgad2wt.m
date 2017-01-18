@@ -20,6 +20,13 @@ else
     path2rec          = [file_path filesep rec_fname '.rec'];
 end
 
+dio_file_struct = dir([file_path filesep fid '*_dio.mat']); % change to *_dio.mat; change rec to dio
+if isempty(dio_file_struct)
+    error('no dio file found')
+else
+    [~, dio_fname, ~] = fileparts(dio_file_struct.name);
+end
+
 wt_file_struct = dir([file_path filesep fid '*wt.mat']);
 if isempty(wt_file_struct)
     error('no whisker tracking file found')
@@ -36,7 +43,9 @@ wt = [ang, sp, amp, phs, vel, wsk];
 
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
-dio                 = readTrodesFileDigitalChannels(path2rec);
+% dio                 = readTrodesFileDigitalChannels(path2rec);
+path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
+load(path2dio)
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
@@ -88,6 +97,7 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     % index for the slowly sampled data.
     temp_hsv_ind0 = find(frame_inds >= ind0, 1,'first');
     temp_hsv_ind1 = find(frame_inds <= ind1, 1, 'last');
+    frame_cell{trial_count, 1} = temp_hsv_ind0:temp_hsv_ind1;
     wt_cell{trial_count, 1} = wt(temp_hsv_ind0:temp_hsv_ind1, :);
     progressbar(trial_count/(num_state_changes/2));
     trial_count = trial_count + 1;
@@ -95,12 +105,9 @@ end
 
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
-save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'wt', 'stimsequence', 'stimulus_times', '-v7.3')
-send_text_message(...
-    '3237127849',...
-    'sprint',...
-    'spkgad2wt COMPLETE',...
-    ['spkgad2wt for ' fname ' has finished' ' frame difference: ' num2str(frame_diff)])
+save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'wt', 'stimsequence',...
+    'stimulus_times', 'frame_cell', '-v7.3')
+
 clear all
 
 
