@@ -24,9 +24,9 @@ class kwik_gui_custom(object):
                 self.c = c
                 self.gui = gui
                 self.enable_plot = True
-                f, ax = plt.subplots(1, 2, figsize=(16, 6))
-                self.f = f
-                self.ax = ax
+#                f, ax = plt.subplots(1, 2, figsize=(16, 6))
+#                self.f = f
+#                self.ax = ax
             except:
                 raise ValueError('Cannot open gui!--go find Greg!')
         else:
@@ -84,41 +84,43 @@ class kwik_gui_custom(object):
                 except:
                     cluster_group = 'in progress'
 
-                # prepare figure
-#                f, ax = plt.subplots(1, 2, figsize=(16, 6))
-
-                # isi distribution
-                ax0 = plt.subplot(1, 2, 1)
-                ax0.clear()
-                ax0.bar(bins[:-1], counts, width=bin_size, color='#4f8fff',\
-                        align='center', edgecolor='none')
-                ax0.add_patch(
-                        patches.Rectangle((0.0, 0.0), 0.0015, rp_height,
-                            facecolor='#ff0000', edgecolor='#ff0000', alpha=0.5))
-                plt.suptitle('cluster ID and group: ' + str(cluster_id) + ', ' + cluster_group + \
+                print('cluster ID and group: ' + str(cluster_id) + ', ' + cluster_group + \
                         '\nrbvs: ' + str(len(rpvs)) + '/' + str(len(isi)) + '   ({:2.2f})%'.format(rpv_perc))
-                plt.title('ISI distribution')
-                plt.xlabel('time (s)')
-                plt.ylabel('counts/bin')
+                # prepare figure
+##                f, ax = plt.subplots(1, 2, figsize=(16, 6))
 
-                # amplitude and drift vs time
-                ax1 = plt.subplot(1, 2, 2)
-                ax1.clear()
-                ax1.plot(t_avg_amp, avg_amp, color='#4f8fff', linewidth=2)
-                plt.xlabel('time (s)')
-                plt.ylabel('peak-to-peak amplitude')
-                plt.title('amplitude and electrode drift')
-                ax1.set_ylim(0, 150)
-
-                ax2 = self.ax[1].twinx()
-                ax2.clear()
-                ax2.plot(wave_times, wave_drift, color='#ff0000', alpha=0.5)
-                ax2.set_ylabel('electrode contact')
-                ax2.set_ylim(0, 32)
-
-                plt.show()
-                self.f.canvas.draw()
-
+#                # isi distribution
+#                ax0 = plt.subplot(1, 2, 1)
+#                ax0.clear()
+#                ax0.bar(bins[:-1], counts, width=bin_size, color='#4f8fff',\
+#                        align='center', edgecolor='none')
+#                ax0.add_patch(
+#                        patches.Rectangle((0.0, 0.0), 0.0015, rp_height,
+#                            facecolor='#ff0000', edgecolor='#ff0000', alpha=0.5))
+#                plt.suptitle('cluster ID and group: ' + str(cluster_id) + ', ' + cluster_group + \
+#                        '\nrbvs: ' + str(len(rpvs)) + '/' + str(len(isi)) + '   ({:2.2f})%'.format(rpv_perc))
+#                plt.title('ISI distribution')
+#                plt.xlabel('time (s)')
+#                plt.ylabel('counts/bin')
+#
+#                # amplitude and drift vs time
+#                ax1 = plt.subplot(1, 2, 2)
+#                ax1.clear()
+#                ax1.plot(t_avg_amp, avg_amp, color='#4f8fff', linewidth=2)
+#                plt.xlabel('time (s)')
+#                plt.ylabel('peak-to-peak amplitude')
+#                plt.title('amplitude and electrode drift')
+#                ax1.set_ylim(0, 150)
+#
+#                ax2 = self.ax[1].twinx()
+#                ax2.clear()
+#                ax2.plot(wave_times, wave_drift, color='#ff0000', alpha=0.5)
+#                ax2.set_ylabel('electrode contact')
+#                ax2.set_ylim(0, 32)
+#
+#                plt.show()
+#                self.f.canvas.draw()
+#
 
 print(sys.argv)
 kwik = kwik_gui_custom(sys.argv[1])
