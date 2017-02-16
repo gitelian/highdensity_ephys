@@ -1,4 +1,4 @@
-%SPKGAD2LFP.m Write LFPs to cell array
+ %SPKGAD2LFP.m Write LFPs to cell array
 %   SPKGAD2LFP() takes no arguements; it pulls up a dialogue box in which the user
 %   is asked to select a .LFP directory inside of an experiment directory.
 %   SPKGAD2LFP will look for a .rec file. Using the information from the

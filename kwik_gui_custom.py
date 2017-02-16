@@ -2,10 +2,20 @@
 import numpy as np
 from IPython import get_ipython
 from os import path
-from phycontrib.kwik_gui import KwikController
+# what previously worked prio to 2/2017
+#from phycontrib.kwik_gui import KwikController
+
+# what currently works
+from phycontrib.kwik import KwikController
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import sys
+
+# Custom plotting code for phy and klustakwik spike sorter.
+# G. Telian
+# Adesnik Lab
+# UC Berkeley
+# 20170207
 
 class kwik_gui_custom(object):
 
@@ -21,7 +31,8 @@ class kwik_gui_custom(object):
                 c = KwikController(kwik_path)
                 gui = c.create_gui()
                 gui.show()
-                self.c = c
+                #self.c = c # old way
+                self.c = c.model
                 self.gui = gui
                 self.enable_plot = True
 #                f, ax = plt.subplots(1, 2, figsize=(16, 6))
@@ -86,10 +97,7 @@ class kwik_gui_custom(object):
 
                 print('cluster ID and group: ' + str(cluster_id) + ', ' + cluster_group + \
                         '\nrbvs: ' + str(len(rpvs)) + '/' + str(len(isi)) + '   ({:2.2f})%'.format(rpv_perc))
-                # prepare figure
-##                f, ax = plt.subplots(1, 2, figsize=(16, 6))
-
-#                # isi distribution
+#                # prepare figure #                f, ax = plt.subplots(1, 2, figsize=(16, 6)) # isi distribution
 #                ax0 = plt.subplot(1, 2, 1)
 #                ax0.clear()
 #                ax0.bar(bins[:-1], counts, width=bin_size, color='#4f8fff',\
@@ -120,7 +128,7 @@ class kwik_gui_custom(object):
 #
 #                plt.show()
 #                self.f.canvas.draw()
-#
+
 
 print(sys.argv)
 kwik = kwik_gui_custom(sys.argv[1])
