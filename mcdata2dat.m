@@ -32,13 +32,13 @@ flat_data = zeros(num_points, 1,  'int16');
 count = 1;
 for k = 1:ROWS
     for l = 1:COLS
-        temp = int16(double(MCdata1(k, l))/(2^16)*1000);
+        temp = int16(double(MCdata1(k, l))*10000);
         flat_data(count, 1) = temp;
         count = count + 1;
     end
 end
 
-fid2write = fopen('elena32.phy.dat', 'w');
+fid2write = fopen('elena16.phy.dat', 'w');
 fwrite(fid2write, flat_data, 'int16');
 fclose(fid2write);
 
