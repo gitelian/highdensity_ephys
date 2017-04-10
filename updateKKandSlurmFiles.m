@@ -2,7 +2,7 @@
 
 
 
-function updateKKandSlurmFiles(exp_path, exp_name, prb_file)
+function updateKKandSlurmFiles(exp_path, exp_name, prb_file, num_channels)
 %% update params.prm file
 % TODO: change hard-coded paths. get path to data directory from input
 fid = fopen('/media/greg/data/neuro/params.prm', 'r');
@@ -16,6 +16,8 @@ while ischar(tline)
         txt_cell{i} = ['prb_file = ' sprintf('\''') prb_file sprintf('\''')];
     elseif strfind(tline, 'experiment_name') & strcmp(tline(1:3), 'exp') % update param file with experiment name
         txt_cell{i} = ['experiment_name = ' sprintf('\''') exp_name sprintf('\''')]; % no .phy.dat extensions
+    elseif strfind(tline, 'n_channels')
+        txt_cell{i} = ['    n_channels=' num2str(num_channels) ','];% sprintf('\n')];
     else
         txt_cell{i} = tline;
     end

@@ -16,9 +16,17 @@
 %   20160815
 %%
 
-echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
-% echan_num = [1,8; 9,12]; % specify the channels numbers corresponding to each electrode
+%% User Input
+% specify the channels numbers corresponding to each electrode
+echan_num = [1,8; 9,16];
+% echan_num = [1,8; 9,12];
+% echan_num = [1,4; 5,12];
 
+% number of probes used
+probe_type = {'a1x32', 'a1x32'};
+% probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64, lbnl64, 
+
+%% Main Code
 main_data_path = '/media/greg/data/neuro/';
 [file_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
 file_path = [file_path filesep file_name file_ext];
@@ -86,8 +94,9 @@ for electrode = 1:num_electrodes
     
     % template files should be located in the general data directory
     % add params.prm file with experiment name to directory
-    prb_file = [num2str(num_chan(electrode)) 'chan.prb'];
-    updateKKandSlurmFiles(new_folder_path, phy_dat_fname, prb_file);
+    prb_file = [probe_type{electrode} '.prb'];
+    num_channels = (echan_num(electrode, 2) - echan_num(electrode, 1) + 1)*4;
+    updateKKandSlurmFiles(new_folder_path, phy_dat_fname, prb_file, num_channels);
     
     % add probe file to directory
     copyfile([main_data_path prb_file], [new_folder_path filesep prb_file])
