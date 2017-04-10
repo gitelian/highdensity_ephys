@@ -35,7 +35,7 @@ else
     path2wt          = [file_path filesep wt_fname '.mat'];
 end
 
-% load tracked mat file and rearrance data into wt matrix.
+% load tracked mat file and rearrange data into wt matrix.
 % spikes2neo expects a matrix with all the whisking data
 fprintf('\n#####\nloading whisker tracking data and organizing into one matrix\n#####\n');
 load(path2wt)
