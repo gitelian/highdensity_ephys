@@ -62,7 +62,7 @@ for exp_i = 1:num_exp
     prb_struct   = dir([path2kwik filesep '*.prb']);
     disp('USING PROBE FILE TO GET NUMBER OF CONTACTS OF ELECTRODE!')
     disp(prb_struct.name)
-    num_chan     = str2double(prb_struct.name(1:2));
+    num_chan     = str2double(prb_struct.name(4:5));
 
     if isempty(kwik_struct)
         warning(['no .kwik file found in ' path2kwik])
@@ -161,8 +161,14 @@ if num_state_changes > 0
     progressbar('labeling trials')
 
     for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
-        ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index for the trial
-        ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index for the trial
+        
+        if dynamic_time
+            ind0 = state_change_inds(k) - time_before*30000;   % start time index
+            ind1 = state_change_inds(k+1) + time_after*30000; % stop time index
+        else
+            ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index
+            ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index
+        end
         stimulus_sample_num(trial_count, :) = [state_change_inds(k), state_change_inds(k+1)]; % get index of stim start/start (i.e. object starts moving into place and when it starts leaving)
         stimulus_times(trial_count, :)      = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus start
         trials(ind0:ind1) = trial_count;

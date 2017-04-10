@@ -7,6 +7,15 @@
 %   20161205
 %%
 
+%% User Input
+
+% specify whether proceding code dynamically determine time before and
+% after stimulus onset to use OR use the parameters below.
+dynamic_time = 1;
+time_before = 1.0;
+time_after  = 2.0;
+
+%% Main Code
 file_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to extract run data');
 
 if file_path == 0
@@ -29,4 +38,7 @@ path2rec     = [file_path filesep rec_fname '.rec'];
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 dio = readTrodesFileDigitalChannels(path2rec);
-save([file_path filesep fid '_dio.mat'], 'dio', '-v7.3')
+save([file_path filesep fid '_dio.mat'], 'dio',...
+    'dynamic_time', 'time_before', 'time_after',...
+    '-v7.3')
+

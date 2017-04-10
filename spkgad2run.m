@@ -61,8 +61,13 @@ trial_count     = 1;
 progressbar('extracting running distance')
 
 for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
-    ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index
-    ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index
+    if dynamic_time
+        ind0 = state_change_inds(k) - time_before*30000;   % start time index
+        ind1 = state_change_inds(k+1) + time_after*30000; % stop time index
+    else
+        ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index
+        ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index
+    end
 
     % determine what stimulus was presented by counting the number of high
     % pusles on the second digital input line.
