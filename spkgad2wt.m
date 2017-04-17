@@ -37,9 +37,9 @@ end
 
 % load tracked mat file and rearrange data into wt matrix.
 % spikes2neo expects a matrix with all the whisking data
-fprintf('\n#####\nloading whisker tracking data and organizing into one matrix\n#####\n');
+fprintf('\n#####\nloading whisker tracking data\n#####\n');
 load(path2wt)
-wt = [ang, sp, amp, phs, vel, wsk];
+% wt = [ang, sp, amp, phs, vel, wsk];
 
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
@@ -59,29 +59,30 @@ iti_duration    = dt_state_change(2:2:end); % -stop1 + start2 + ...
 dt_before_after = uint64(iti_duration/2);
 dt_before_after = [mean(dt_before_after); dt_before_after; mean(dt_before_after)];
 
-%% find HSV ttl pulses and assign timestamps to whisker tracking data
-
-fprintf('\n#####\nfinding HSV ttl pulses\n#####\n');
-% there are some errant edges at the beginning due to noise caused by the HSV
-% smoothing first fixes this
-hsv_ttl = dio.channelData(5).data;
-hsv_ttl_filt = sgolayfilt(double(hsv_ttl), 4, 31);
-frame_inds   = find(diff(hsv_ttl_filt > 0.5) == 1)+1;
-
-frame_diff = length(frame_inds) - length(wt);
-if abs(frame_diff) > 1
-    warning('number of ttl pulses and wt frames NOT EQUAL')
-    frame_inds(end-frame_diff+1:end) = []; % if the difference isn't that big
-    % remove the last few indices.
-elseif frame_diff == 1
-   frame_inds(end) = [];
-elseif frame_diff == -1
-     frame_inds(end) = [];
-end
+% %% find HSV ttl pulses and assign timestamps to whisker tracking data
+% 
+% fprintf('\n#####\nfinding HSV ttl pulses\n#####\n');
+% % there are some errant edges at the beginning due to noise caused by the HSV
+% % smoothing first fixes this
+% hsv_ttl = dio.channelData(5).data;
+% hsv_ttl_filt = sgolayfilt(double(hsv_ttl), 4, 31);
+% frame_inds   = find(diff(hsv_ttl_filt > 0.5) == 1)+1;
+% 
+% frame_diff = length(frame_inds) - length(wt);
+% if abs(frame_diff) > 1
+%     warning('number of ttl pulses and wt frames NOT EQUAL')
+%     frame_inds(end-frame_diff+1:end) = []; % if the difference isn't that big
+%     % remove the last few indices.
+% elseif frame_diff == 1
+%    frame_inds(end) = [];
+% elseif frame_diff == -1
+%      frame_inds(end) = [];
+% end
 
 %%
 trial_count = 1;
 progressbar('splitting whisker tracking data by trials')
+wt_cell = cell(num_state_changes/2, 1);
 
 for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
     
@@ -99,20 +100,23 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     stimsequence(trial_count)      = num_pulses;
     stimulus_times(trial_count, :) = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus start
 
-    % the HSV signal is sampled at 500Hz Need to calculate the corresponding
-    % index for the slowly sampled data.
-    temp_hsv_ind0 = find(frame_inds >= ind0, 1,'first');
-    temp_hsv_ind1 = find(frame_inds <= ind1, 1, 'last');
-    frame_cell{trial_count, 1} = temp_hsv_ind0:temp_hsv_ind1;
-    wt_cell{trial_count, 1} = wt(temp_hsv_ind0:temp_hsv_ind1, :);
+%     % the HSV signal is sampled at 500Hz Need to calculate the corresponding
+%     % index for the slowly sampled data.
+%     temp_hsv_ind0 = find(frame_inds >= ind0, 1,'first');
+%     temp_hsv_ind1 = find(frame_inds <= ind1, 1, 'last');
+%     frame_cell{trial_count, 1} = temp_hsv_ind0:temp_hsv_ind1;
+%     wt_cell{trial_count, 1} = wt(temp_hsv_ind0:temp_hsv_ind1, :);
+    
+    wt_cell{trial_count, 1} = [ang{trial_count, 1}, sp{trial_count, 1},...
+        amp{trial_count, 1}, phs{trial_count, 1}, vel{trial_count, 1}, wsk{trial_count, 1}];
     progressbar(trial_count/(num_state_changes/2));
     trial_count = trial_count + 1;
 end
 
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
-save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'wt', 'stimsequence',...
-    'stimulus_times', 'frame_cell', '-v7.3')
+save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'stimsequence',...
+    'stimulus_times', '-v7.3')
 
 clear all
 

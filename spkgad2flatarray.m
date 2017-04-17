@@ -18,13 +18,15 @@
 
 %% User Input
 % specify the channels numbers corresponding to each electrode
-echan_num = [1,8; 9,16];
+echan_num = [1,8; 9,16]; % a1x32 (two)
+% echan_num = [1,16];      % lbl64 (one)
 % echan_num = [1,8; 9,12];
 % echan_num = [1,4; 5,12];
 
 % number of probes used
 probe_type = {'a1x32', 'a1x32'};
-% probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64, lbnl64, 
+% probe_type = {'lbl64'};
+% probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64, lbl64, 
 
 %% Main Code
 main_data_path = '/media/greg/data/neuro/';
@@ -71,7 +73,7 @@ for electrode = 1:num_electrodes
             disp(['adding channel ' num2str(chan_count)])
             progressbar([], chan_count/num_chan(electrode));
 
-            dmat(1, chan_count:num_chan(electrode):nsamples*num_chan(electrode)) = data.fields.data'/10;
+            dmat(1, chan_count:num_chan(electrode):nsamples*num_chan(electrode)) = data.fields.data'; %/10;
             chan_count = chan_count + 1;
         end
     end

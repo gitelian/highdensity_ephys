@@ -1,14 +1,18 @@
 
 
 % probe remap
-remap_vector = [6, 11, 3, 14, 1, 16, 2, 15, 5, 12, 4, 13, 7, 10, 8, 9];
+% remap_vector = [6, 11, 3, 14, 1, 16, 2, 15, 5, 12, 4, 13, 7, 10, 8, 9]; % old 16 channel layout
+remap_vector = [10, 7, 3, 14, 4, 13, 12, 5, 2, 15, 11, 6, 1, 16, 9, 8]; % new 16 channel layout
 
-% convert MCdata cell array into a matrix
-for trial = 1:length(MCdata)
-    MCdata{1, trial}(:, 1:16) = [];
-    MCdata{1, trial}(:, 17) = [];
-end
+% % convert MCdata cell array into a matrix
+% for trial = 1:length(MCdata)
+%     MCdata{1, trial}(:, 1:16) = [];
+%     MCdata{1, trial}(:, 17) = [];
+% end
 
+% scale and convert to int16
+MCdata = cellfun(@(x) x*10000, MCdata, 'un', 0);
+MCdata = cellfun(@int16, MCdata, 'un', 0);
 MCdata0 = cell2mat(MCdata');
 % MCdata0 = MCdata0(:, 17:32);
 clear MCdata
@@ -32,7 +36,8 @@ flat_data = zeros(num_points, 1,  'int16');
 count = 1;
 for k = 1:ROWS
     for l = 1:COLS
-        temp = int16(double(MCdata1(k, l))*10000);
+%         temp = int16(double(MCdata1(k, l))*10000);
+          temp = MCdata1(k, l);
         flat_data(count, 1) = temp;
         count = count + 1;
     end
