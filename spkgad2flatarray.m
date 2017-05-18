@@ -14,24 +14,35 @@
 %   Adesnik Lab
 %   UC Berkeley
 %   20160815
+%
+%   EDIT: 20170518
+%   spkgad2flatarray now calls a simplified version of spkgad2dio. all
+%   parameters in the user input section are now saved to the dio.mat file.
 %%
 
 %% User Input
 % specify the channels numbers corresponding to each electrode
 echan_num = [1,8; 9,16]; % a1x32 (two)
 % echan_num = [1,16];      % lbl64 (one)
-% echan_num = [1,8; 9,12];
-% echan_num = [1,4; 5,12];
+% echan_num = [1,8; 9,12]; % a1x32, a1x16
+% echan_num = [1,4; 5,12]; % a1x16, a1x32
+%echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
-probe_type = {'a1x32', 'a1x32'};
+probe_type = {'a1x32-poly2', 'a1x32-poly2'};
 % probe_type = {'lbl64'};
-% probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64, lbl64, 
+% probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64, lbl64,
+
+% specify whether proceding code dynamically determines time before and
+% after stimulus onset OR use the parameters below.
+dynamic_time = 0;
+time_before = 1.0;
+time_after  = 2.0;
 
 %% Main Code
 main_data_path = '/media/greg/data/neuro/';
-[file_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
-file_path = [file_path filesep file_name file_ext];
+[main_dir_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
+file_path = [main_dir_path filesep file_name file_ext];
 
 if file_path == 0
     error('no directory was selected')
@@ -107,4 +118,19 @@ end
 
 progressbar(1)
 
+%% Open and save dio to .mat file as well as user set parameters above
+
+fprintf('\n#### Running spkgad2dio #####')
+try
+    spkgad2dio
+    fprintf('\n#### spkgad2dio worked! ####')
+catch
+    error('#### spkgad2dio did not work! ####')
+end
+
 clear all
+
+
+
+
+

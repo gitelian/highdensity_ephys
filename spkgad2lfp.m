@@ -23,7 +23,8 @@ end
 
 [fpath, fname, ~] = fileparts(file_path);
 fid = fname(1:7);
-echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
+% echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
+echan_num = [1,4; 5,8]; % specify the channels numbers corresponding to each electrode
 num_electrodes = size(echan_num, 1);
 
 % load trial digital line and find trial start and end indices
