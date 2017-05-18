@@ -11,24 +11,6 @@
 %   parameters in the user input section are now saved to the dio.mat file.
 %%
 
-% %% User Input
-% 
-% % specify whether proceding code dynamically determines time before and
-% % after stimulus onset OR use the parameters below.
-% dynamic_time = 1;
-% time_before = 1.0;
-% time_after  = 2.0;
-
-%% Main Code
-% main_dir_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to extract run data');
-% 
-% if main_dir_path == 0
-%     error('no directory was selected')
-% end
-
-% [~, fname, ~] = fileparts(main_dir_path);
-% fid = fname(1:7);
-
 rec_file_struct = dir([main_dir_path filesep fid '*.rec']);
 if isempty(rec_file_struct)
     error('no .rec file found')
