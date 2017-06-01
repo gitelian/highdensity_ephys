@@ -23,9 +23,6 @@ end
 
 [fpath, fname, ~] = fileparts(file_path);
 fid = fname(1:7);
-% echan_num = [1,8; 9,16]; % specify the channels numbers corresponding to each electrode
-echan_num = [1,4; 5,8]; % specify the channels numbers corresponding to each electrode
-num_electrodes = size(echan_num, 1);
 
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
@@ -43,6 +40,7 @@ path2dio     = [dio_path filesep dio_fname '.mat']; % change to .mat
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 load(path2dio)
+num_electrodes      = size(echan_num, 1);
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);

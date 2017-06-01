@@ -11,7 +11,7 @@
 %   parameters in the user input section are now saved to the dio.mat file.
 %%
 
-rec_file_struct = dir([main_dir_path filesep fid '*.rec']);
+rec_file_struct = dir([fpath filesep fid '*.rec']);
 if isempty(rec_file_struct)
     error('no .rec file found')
 else
@@ -19,7 +19,7 @@ else
 end
 
 
-path2rec     = [main_dir_path filesep rec_fname '.rec'];
+path2rec     = [fpath filesep rec_fname '.rec'];
 
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');

@@ -30,27 +30,28 @@ echan_num = [1,8; 9,16]; % a1x32 (two)
 
 % number of probes used
 probe_type = {'a1x32-poly2', 'a1x32-poly2'};
-% probe_type = {'lbl64'};
-% probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64, lbl64,
+% probe_type = {'lbl64_batch02'};
+% probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64
 
 % specify whether proceding code dynamically determines time before and
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
 time_before = 1.0;
 time_after  = 2.0;
+warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
 %% Main Code
 main_data_path = '/media/greg/data/neuro/';
 [main_dir_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
-file_path = [main_dir_path filesep file_name file_ext];
+dir_path = dir([main_dir_path filesep file_name filesep '*SPK']);
+file_path = [main_dir_path filesep file_name filesep dir_path.name];
 
-if file_path == 0
-    error('no directory was selected')
-elseif ~strcmp(file_ext, '.SPK')
+if isempty(dir_path)
     error('not a .SPK directory!')
 end
 
-[fpath, fname, ~] = fileparts(file_path);
+fpath = dir_path.folder;
+fname = dir_path.name;
 fid = fname(1:7);
 num_chan =  (echan_num(:,2)-echan_num(:,1)+1)*4;
 num_electrodes = size(echan_num, 1);
@@ -64,7 +65,7 @@ for electrode = 1:num_electrodes
         for chan = 1:4
 
             fext = ['.LFP_nt' num2str(ntrode) 'ch' num2str(chan) '.dat'];
-            ffullname = [file_path filesep fname fext];
+            ffullname = [file_path filesep fid fext];
             data = readTrodesExtractedDataFile(ffullname);
 
             %% setup data array
@@ -96,7 +97,7 @@ for electrode = 1:num_electrodes
         disp('Making new electrode directory')
         mkdir(new_folder_path)
     end
-    phy_dat_fname = [fname '-e' num2str(electrode)];
+    phy_dat_fname = [fid '-e' num2str(electrode)];
     fid2write = fopen([new_folder_path filesep phy_dat_fname  '.phy.dat'], 'w');
     fwrite(fid2write, dmat, 'int16');
     fclose(fid2write);
@@ -107,8 +108,18 @@ for electrode = 1:num_electrodes
     
     % template files should be located in the general data directory
     % add params.prm file with experiment name to directory
-    prb_file = [probe_type{electrode} '.prb'];
+    prb_file = dir([main_data_path filesep probe_type{electrode} '*.prb']);
+    
+    if isempty(prb_file)
+        error('probe file NOT FOUND')
+    elseif length(prb_file) > 1
+        error('prb_file name is AMBIGUOUS')
+    else
+        prb_file = prb_file.name;
+    end
+    
     num_channels = (echan_num(electrode, 2) - echan_num(electrode, 1) + 1)*4;
+    % prb_file has to be the FULL file name!
     updateKKandSlurmFiles(new_folder_path, phy_dat_fname, prb_file, num_channels);
     
     % add probe file to directory
