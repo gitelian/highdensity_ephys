@@ -10,19 +10,35 @@
 %   UC Berkeley
 %   20160815
 %%
+% main_data_path = '/media/greg/data/neuro/';
+% [file_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select LFP folder to extract neural data'));
+% file_path = [file_path filesep file_name file_ext];
+% dio_path = fileparts(file_path);
+% 
+% if file_path == 0
+%     error('no directory was selected')
+% elseif ~strcmp(file_ext, '.LFP')
+%     error('not a .LFP directory!')
+% end
+% 
+% [fpath, fname, ~] = fileparts(file_path);
+% fid = fname(1:7);
+
 main_data_path = '/media/greg/data/neuro/';
-[file_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select LFP folder to extract neural data'));
-file_path = [file_path filesep file_name file_ext];
+[main_dir_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
+dir_path = dir([main_dir_path filesep file_name filesep '*LFP']);
+file_path = [main_dir_path filesep file_name filesep dir_path.name];
 dio_path = fileparts(file_path);
 
-if file_path == 0
-    error('no directory was selected')
-elseif ~strcmp(file_ext, '.LFP')
+
+if isempty(dir_path)
     error('not a .LFP directory!')
 end
 
-[fpath, fname, ~] = fileparts(file_path);
+fpath = dir_path.folder;
+fname = dir_path.name;
 fid = fname(1:7);
+%%
 
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
@@ -37,8 +53,6 @@ end
 
 path2dio     = [dio_path filesep dio_fname '.mat']; % change to .mat
 
-% load trial digital line and find trial start and end indices
-fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 load(path2dio)
 num_electrodes      = size(echan_num, 1);
 num_samples         = length(dio.timestamps);
@@ -63,7 +77,7 @@ for electrode = 1:num_electrodes
             % Load LFP data from one channel
             fprintf(['\n#####\nloading LPFs from channel: ' num2str(chan_count) '\n#####\n']);
             fext = ['.LFP_nt' num2str(ntrode) 'ch' num2str(chan) '.dat'];
-            ffullname = [file_path filesep fname fext];
+            ffullname = [file_path filesep fid fext];
             data = readTrodesExtractedDataFile(ffullname);
             decimation = data.decimation;
 
@@ -118,7 +132,7 @@ for electrode = 1:num_electrodes
         disp('Making new electrode directory')
         mkdir(new_folder_path)
     end
-    lfp_fname = [fname '-e' num2str(electrode) '-LFP'];
+    lfp_fname = [fid '-e' num2str(electrode) '-LFP'];
     save([new_folder_path filesep lfp_fname  '.mat'], 'lfp', 'stimsequence', '-v7.3')
 end % n electrode loop
 

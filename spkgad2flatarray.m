@@ -31,6 +31,7 @@ echan_num = [1,8; 9,16]; % a1x32 (two)
 % number of probes used
 probe_type = {'a1x32-poly2', 'a1x32-poly2'};
 % probe_type = {'lbl64_batch02'};
+% probe_type = {'a1x16', 'a1x32-poly2'};
 % probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64
 
 % specify whether proceding code dynamically determines time before and
@@ -131,12 +132,12 @@ progressbar(1)
 
 %% Open and save dio to .mat file as well as user set parameters above
 
-fprintf('\n#### Running spkgad2dio #####')
+fprintf('\n#### Running spkgad2dio #####\n')
 try
     spkgad2dio
-    fprintf('\n#### spkgad2dio worked! ####')
+    fprintf('\n#### spkgad2dio worked! ####\n')
 catch
-    error('#### spkgad2dio did not work! ####')
+    error('#### spkgad2dio did not work! ####\n')
 end
 
 clear all
