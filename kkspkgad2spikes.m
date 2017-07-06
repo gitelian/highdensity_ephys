@@ -224,7 +224,8 @@ raw_data = reshape(raw_data, num_chan, length(raw_data)/num_chan);
 % TEMP COMMENTS
 progressbar('filtering data')
 for r = 1:num_chan
-    raw_data(r, :) = single(neuro_filt(raw_data(r, :)));
+%     raw_data(r, :) = single(neuro_filt(raw_data(r, :)));
+    raw_data(r, :) = int16(neuro_filt(raw_data(r, :)));
     progressbar(r/num_chan)
 end
 progressbar(1)
@@ -232,7 +233,8 @@ progressbar(1)
 % get 15 samples before and 45 samples after (2ms worth of data)
 num_units       = size(spikes.labels, 1);
 num_spikes      = length(spikes.assigns);
-waveforms       = zeros(num_spikes, 60, num_chan, 'single');
+% waveforms       = zeros(num_spikes, 60, num_chan, 'single');
+waveforms       = zeros(num_spikes, 60, num_chan, 'int16'); % may not need SINGLE...make sure this works!!!
 num_raw_samples = size(raw_data, 2);
 
 progressbar('spike waveform extraction')
