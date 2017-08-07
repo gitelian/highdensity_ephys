@@ -6,7 +6,7 @@
 %   stimulus ID. It saves the cummulative runspeed in a total_samplesx1
 %   vector and also breaks up running epochs corresponding to trials and
 %   saves them in a cell array. The stimulus sequence is also saved in a
-%   total_samplesx1 vector.
+%   total_samples x 1 vector.
 %
 %   G. Telian
 %   Adesnik Lab
