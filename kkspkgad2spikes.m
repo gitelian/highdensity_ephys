@@ -276,13 +276,6 @@ if exist([path2kwik filesep fid '-e' num2str(exp_i) '-spikes.mat'], 'file') == 1
 end
 
 fprintf(['\n#####\nSaving Data for ' fid '-e' num2str(exp_i) '\n#####\n'])
-%% TEMP CHANGE STIMULUS LABELS
-% spikes.stimsequence(spikes.stimsequence < 10)  = 1;
-% spikes.stimsequence(spikes.stimsequence >= 10) = 2;
-% 
-% spikes.stimuli(spikes.stimuli < 10)  = 1;
-% spikes.stimuli(spikes.stimuli >= 10) = 2;
-%%
 save([path2kwik filesep fid '-e' num2str(exp_i) '-spikes.mat'], 'spikes', '-v7.3')
 
 % clear all variables and load in variables in the temp file for the net iteration
