@@ -51,6 +51,16 @@ else
     [~, dio_fname, ~] = fileparts(dio_file_struct.name);
 end
 
+run_file_struct = dir([dio_path filesep fid '*_dio.run']);
+if isempty(run_file_struct)
+    error('no run file found')
+else
+    [~, run_fname, ~] = fileparts(run_file_struct.name);
+    path2run          = [dio_path filesep run_fname '.run'];
+end
+
+run = load(path2run, '-mat');
+
 path2dio     = [dio_path filesep dio_fname '.mat']; % change to .mat
 
 load(path2dio)
@@ -58,7 +68,7 @@ num_electrodes      = size(echan_num, 1);
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
-stimsequence        = zeros(num_state_changes/2, 1);
+stimsequence        = run.stimsequence;
 
 % calculate beginning and end of trials
 fprintf('\n#####\ncalculating beginning and end of trials\n#####\n');
@@ -97,7 +107,6 @@ for electrode = 1:num_electrodes
                 % determine what stimulus was presented by counting the number of high
                 % pusles on the second digital input line.
                 num_pulses = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
-                stimsequence(trial_count) = num_pulses;
 
                 % the LFP signal was downsampled! Need to calculate the
                 % corresponding index for the downsampled data.

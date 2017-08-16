@@ -46,6 +46,13 @@ else
     [~, dio_fname, ~] = fileparts(dio_file_struct.name);
 end
 
+run_file_struct = dir([file_path filesep fid '*_dio.run']);
+if isempty(run_file_struct)
+    error('no run file found')
+else
+    [~, run_fname, ~] = fileparts(run_file_struct.name);
+end
+
 num_exp = length(exp_dir_struct);
 
 % all variables below this are created using the above variables
@@ -55,7 +62,8 @@ save([tempdir filesep 'kk2spikes_temp.mat'], '-v7.3')
 for exp_i = 1:num_exp
     exp_dir_name = exp_dir_struct(exp_i).name;
 %     path2rec     = [file_path filesep rec_fname '.rec'];
-    path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
+    path2dio     = [file_path filesep dio_fname '.mat'];
+    path2run     = [file_path filesep run_fname '.run'];
     path2kwik    = [file_path filesep exp_dir_name filesep];
     kwik_struct  = dir([path2kwik filesep rec_fname '*.kwik']);
     phy_struct   = dir([path2kwik filesep rec_fname '*.phy.dat']);
@@ -123,6 +131,7 @@ fprintf('\n#####\nloading digital input lines to ID trial times and condition ty
 
 % dio                 = readTrodesFileDigitalChannels(path2rec);
 load(path2dio)
+run = load(path2run, '-mat');
 
 num_samples         = length(dio.timestamps);
 % could the channel index be or OUT OF ORDER???
@@ -139,9 +148,9 @@ num_state_changes   = length(state_change_inds);
 disp(['number of state changes: ' num2str(num_state_changes)])
 trials              = zeros(num_samples, 1, 'single');
 stimuli             = zeros(num_samples, 1, 'single');
-stimsequence        = zeros(num_state_changes/2, 1, 'single');
+stimsequence        = run.stimsequence;
+stimulus_times      = run.stimulus_times;
 stimulus_sample_num = zeros(num_state_changes/2, 2, 'single');
-stimulus_times      = zeros(num_state_changes/2, 2, 'single');
 trial_times         = zeros(num_state_changes/2, 2, 'single'); % will have time the trial starts and stops (puts bounds on the spike times)
 spiketimes          = double(spk_inds)/30000;
 
@@ -170,14 +179,12 @@ if num_state_changes > 0
             ind1 = state_change_inds(k+1) + dt_before_after(trial_count + 1); % stop time index
         end
         stimulus_sample_num(trial_count, :) = [state_change_inds(k), state_change_inds(k+1)]; % get index of stim start/start (i.e. object starts moving into place and when it starts leaving)
-        stimulus_times(trial_count, :)      = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus start
         trials(ind0:ind1) = trial_count;
 
         % determine what stimulus was presented bu counting the number of high
         % pusles on the second digital input line.
         num_pulses = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
         stimuli(ind0:ind1) = num_pulses;
-        stimsequence(trial_count) = num_pulses;
         trial_times(trial_count, :)  = (double([ind0, ind1]) - double(ind0))/30000;
 
         % create spiketimes array here

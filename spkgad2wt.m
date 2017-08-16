@@ -35,10 +35,20 @@ else
     path2wt          = [file_path filesep wt_fname '.mat'];
 end
 
+run_file_struct = dir([file_path filesep fid '*_dio.run']);
+if isempty(run_file_struct)
+    error('no run file found')
+else
+    [~, run_fname, ~] = fileparts(run_file_struct.name);
+    path2run          = [file_path filesep run_fname '.run'];
+end
+
 % load tracked mat file and rearrange data into wt matrix.
 % spikes2neo expects a matrix with all the whisking data
 fprintf('\n#####\nloading whisker tracking data\n#####\n');
 load(path2wt)
+run = load(path2run, '-mat');
+
 % wt = [ang, sp, amp, phs, vel, wsk];
 
 % load trial digital line and find trial start and end indices
@@ -49,8 +59,8 @@ load(path2dio)
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
-stimsequence        = zeros(num_state_changes/2, 1);
-stimulus_times      = zeros(num_state_changes/2, 2, 'single');
+stimsequence        = run.stimsequence;
+stimulus_times      = run.stimulus_times;
 
 % calculate beginning and end of trials
 fprintf('\n#####\ncalculating beginning and end of trials\n#####\n');
@@ -58,26 +68,6 @@ dt_state_change = diff(state_change_inds); % computes time before each start, st
 iti_duration    = dt_state_change(2:2:end); % -stop1 + start2 + ...
 dt_before_after = uint64(iti_duration/2);
 dt_before_after = [mean(dt_before_after); dt_before_after; mean(dt_before_after)];
-
-% %% find HSV ttl pulses and assign timestamps to whisker tracking data
-% 
-% fprintf('\n#####\nfinding HSV ttl pulses\n#####\n');
-% % there are some errant edges at the beginning due to noise caused by the HSV
-% % smoothing first fixes this
-% hsv_ttl = dio.channelData(5).data;
-% hsv_ttl_filt = sgolayfilt(double(hsv_ttl), 4, 31);
-% frame_inds   = find(diff(hsv_ttl_filt > 0.5) == 1)+1;
-% 
-% frame_diff = length(frame_inds) - length(wt);
-% if abs(frame_diff) > 1
-%     warning('number of ttl pulses and wt frames NOT EQUAL')
-%     frame_inds(end-frame_diff+1:end) = []; % if the difference isn't that big
-%     % remove the last few indices.
-% elseif frame_diff == 1
-%    frame_inds(end) = [];
-% elseif frame_diff == -1
-%      frame_inds(end) = [];
-% end
 
 %%
 trial_count = 1;
@@ -97,9 +87,7 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     % determine what stimulus was presented by counting the number of high
     % pusles on the second digital input line.
     num_pulses                     = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
-    stimsequence(trial_count)      = num_pulses;
-    stimulus_times(trial_count, :) = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus start
-
+    
 %     % the HSV signal is sampled at 500Hz Need to calculate the corresponding
 %     % index for the slowly sampled data.
 %     temp_hsv_ind0 = find(frame_inds >= ind0, 1,'first');
