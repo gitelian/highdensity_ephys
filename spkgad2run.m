@@ -61,7 +61,7 @@ trial_count     = 1;
 progressbar('extracting running distance')
 
 for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
-    if dynamic_time
+    if dynamic_time == 0
         ind0 = state_change_inds(k) - time_before*30000;   % start time index
         ind1 = state_change_inds(k+1) + time_after*30000; % stop time index
     else
