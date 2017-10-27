@@ -76,6 +76,7 @@ for electrode = 1:num_electrodes
                 dtype = data.fields.type;
 
                 if strcmpi(dtype, 'int16')
+                    %nsamples = 30000*60*5;
                     dmat = zeros(1, nsamples*num_chan(electrode), 'int16');
                     % TODO add more checks for different datatypes
                 else
@@ -95,6 +96,8 @@ for electrode = 1:num_electrodes
     %% save data array as a binary file
     progressbar(electrode/num_electrodes, [])
     new_folder_path = [fpath filesep fid '_e' num2str(electrode)];
+%    new_folder_path = [fpath filesep fid '_e' num2str(electrode) filesep 'mountainsort_test'];
+
     if exist(new_folder_path, 'dir') == 0
         disp('Making new electrode directory')
         mkdir(new_folder_path)
@@ -107,11 +110,11 @@ for electrode = 1:num_electrodes
     %% add files needed by KlustaKwik
     % TODO: select probe file based on electrode configuration not just
     % number of channels used
-    
+
     % template files should be located in the general data directory
     % add params.prm file with experiment name to directory
     prb_file = dir([main_data_path filesep probe_type{electrode} '*.prb']);
-    
+
     if isempty(prb_file)
         error('probe file NOT FOUND')
     elseif length(prb_file) > 1
@@ -119,11 +122,11 @@ for electrode = 1:num_electrodes
     else
         prb_file = prb_file.name;
     end
-    
+
     num_channels = (echan_num(electrode, 2) - echan_num(electrode, 1) + 1)*4;
     % prb_file has to be the FULL file name!
     updateKKandSlurmFiles(new_folder_path, phy_dat_fname, prb_file, num_channels);
-    
+
     % add probe file to directory
     copyfile([main_data_path prb_file], [new_folder_path filesep prb_file])
 

@@ -11,8 +11,8 @@
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
 time_before = 1.0;
-% time_after  = 2.0;
-time_after  = 1.2;
+time_after  = 2.0;
+% time_after  = 1.2;
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
 %% main
@@ -30,7 +30,7 @@ else
     [~, rec_fname, ~] = fileparts(rec_file_struct.name);
 end
 
-path2rec     = [fpath filesep rec_fname '.rec'];
+path2rec = [fpath filesep rec_fname '.rec'];
 
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
