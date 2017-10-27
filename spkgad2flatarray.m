@@ -40,6 +40,7 @@ dynamic_time = 0;
 time_before = 1.0;
 % time_after  = 2.0;
 time_after  = 1.2;
+jb_behavior = 0;
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
 %% Main Code

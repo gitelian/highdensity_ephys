@@ -12,6 +12,7 @@
 dynamic_time = 0;
 time_before = 1.0;
 time_after  = 2.0;
+jb_behavior = 1;
 % time_after  = 1.2;
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
@@ -36,7 +37,7 @@ path2rec = [fpath filesep rec_fname '.rec'];
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 dio = readTrodesFileDigitalChannels(path2rec);
 save([fpath filesep fid '_dio.mat'], 'dio',...
-    'dynamic_time', 'time_before', 'time_after',...
+    'dynamic_time', 'time_before', 'time_after', 'jb_behavior',...
     '-v7.3')
 
 disp('successfully complete')
