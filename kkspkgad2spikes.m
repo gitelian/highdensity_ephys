@@ -143,7 +143,7 @@ else
     % readTrodesFileDigitalChannels is used to extract digital inputs/outputs
     fprintf('\n#####\nDIO Channel 1 equals Din1\n#####\n')
 end
-state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
+state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
 disp(['number of state changes: ' num2str(num_state_changes)])
 trials              = zeros(num_samples, 1, 'single');
@@ -183,7 +183,7 @@ if num_state_changes > 0
 
         % determine what stimulus was presented bu counting the number of high
         % pusles on the second digital input line.
-        num_pulses = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
+        num_pulses = length(find(diff(dio.channelData(stim_ind.stim_id).data(ind0:ind1)) < 0));
         stimuli(ind0:ind1) = num_pulses;
         trial_times(trial_count, :)  = (double([ind0, ind1]) - double(ind0))/30000;
 

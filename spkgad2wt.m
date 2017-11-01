@@ -57,7 +57,7 @@ fprintf('\n#####\nloading trial digital line and finding trial start and end ind
 path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
 load(path2dio)
 num_samples         = length(dio.timestamps);
-state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
+state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
 stimsequence        = run.stimsequence;
 stimulus_times      = run.stimulus_times;
@@ -86,7 +86,7 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     
     % determine what stimulus was presented by counting the number of high
     % pusles on the second digital input line.
-    num_pulses                     = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
+    num_pulses                     = length(find(diff(dio.channelData(stim_ind.stim_id).data(ind0:ind1)) < 0));
     
 %     % the HSV signal is sampled at 500Hz Need to calculate the corresponding
 %     % index for the slowly sampled data.

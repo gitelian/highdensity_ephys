@@ -18,6 +18,18 @@ else
     [~, rec_fname, ~] = fileparts(rec_file_struct.name);
 end
 
+% dio channel map
+if jb_behavior == 0
+    stim_ind.trial_boolean = 1;
+    stim_ind.stim_id       = 2;
+    stim_ind.running       = 4;
+elseif jb_behavior == 1
+    stim_ind.trial_boolean = 9;
+    stim_ind.stim_id       = 10;
+    stim_ind.running       = 11;
+    stim_ind.LED_opto      = 12;
+    stim_ind.licking       = 13;
+end
 
 path2rec     = [fpath filesep rec_fname '.rec'];
 
@@ -25,7 +37,7 @@ path2rec     = [fpath filesep rec_fname '.rec'];
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 dio = readTrodesFileDigitalChannels(path2rec);
 save([fpath filesep fid '_dio.mat'], 'dio',...
-    'echan_num', 'probe_type', 'dynamic_time', 'time_before', 'time_after', 'jb_behavior', ...
+    'echan_num', 'probe_type', 'dynamic_time', 'time_before', 'time_after', 'jb_behavior', 'stim_ind', ...
     '-v7.3')
 
 

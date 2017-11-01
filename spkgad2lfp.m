@@ -66,7 +66,7 @@ path2dio     = [dio_path filesep dio_fname '.mat']; % change to .mat
 load(path2dio)
 num_electrodes      = size(echan_num, 1);
 num_samples         = length(dio.timestamps);
-state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
+state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
 stimsequence        = run.stimsequence;
 
@@ -106,7 +106,7 @@ for electrode = 1:num_electrodes
 
                 % determine what stimulus was presented by counting the number of high
                 % pusles on the second digital input line.
-                num_pulses = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
+                num_pulses = length(find(diff(dio.channelData(stim_ind.stim_id).data(ind0:ind1)) < 0));
 
                 % the LFP signal was downsampled! Need to calculate the
                 % corresponding index for the downsampled data.

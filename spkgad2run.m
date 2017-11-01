@@ -38,23 +38,6 @@ fprintf('\n#####\nloading trial digital line and finding trial start and end ind
 % dio                 = readTrodesFileDigitalChannels(path2rec); % replace with load(path2dio)
 load(path2dio)
 
-% dio channel map
-if jb_behavior == 0
-    stim_ind.trial_boolean = 1;
-    stim_ind.stim_id       = 2;
-    stim_ind.running       = 4;
-elseif jb_behavior == 1
-    stim_ind.trial_boolean = 9;
-    stim_ind.stim_id       = 10;
-    stim_ind.running       = 11;
-    stim_ind.LED_opto      = 12;
-    stim_ind.licking       = 13;
-    
-    % this will be the index for the end of the last trial.
-    % used to find stimulus IDs that happend between end of last trial and end of the current trial.
-    last_trial_index = 1;
-end
-
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
@@ -75,6 +58,12 @@ encoder(find(diff(dio.channelData(stim_ind.running).data) > 0)+1) = 1;
 run_dist        = cumsum(encoder);
 run_cell        = cell(num_state_changes/2, 1);
 lick_cell       = cell(num_state_changes/2, 1);
+
+if jb_behavior
+    % this will be the index for the end of the last trial.
+    % used to find stimulus IDs that happend between end of last trial and end of the current trial.
+    last_trial_index = 1;
+end
 
 trial_count     = 1;
 progressbar('extracting running distance')
