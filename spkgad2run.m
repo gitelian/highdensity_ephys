@@ -52,7 +52,7 @@ elseif jb_behavior == 1
     
     % this will be the index for the end of the last trial.
     % used to find stimulus IDs that happend between end of last trial and end of the current trial.
-    last_trial_index = 0;
+    last_trial_index = 1;
 end
 
 num_samples         = length(dio.timestamps);
@@ -74,11 +74,7 @@ encoder         = zeros(num_samples, 1);
 encoder(find(diff(dio.channelData(stim_ind.running).data) > 0)+1) = 1;
 run_dist        = cumsum(encoder);
 run_cell        = cell(num_state_changes/2, 1);
-
-% make a lick and led_opto cell if licking data is available
-if jb_behavior == 1
-    lick_cell = cell(num_state_changes/2, 1);
-end
+lick_cell       = cell(num_state_changes/2, 1);
 
 trial_count     = 1;
 progressbar('extracting running distance')
@@ -116,20 +112,19 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
         high_times  = find(diff(dio.channelData(stim_ind.stim_id).data(last_trial_index:ind1)) > 0);
         low_times   = find(diff(dio.channelData(stim_ind.stim_id).data(last_trial_index:ind1)) < 0);
         diff_times  = (low_times - high_times)/30000;
-        catch_trial = find(diff_times > 6);
+        catch_trial = find(diff_times > 0.006);
         
         if catch_trial
             stimsequence(trial_count) = 9 + stim_offset;
         else
-            stimsequence(trial_count) = num_pulses + stim_offset;
+            if num_pulses  <= 4
+                stimsequence(trial_count) = num_pulses + stim_offset;
+            elseif num_pulses >= 10
+                % stim IDs jump from 1,2,3,4, then to 10,11,12,13
+                stimsequence(trial_count) = num_pulses + stim_offset - 5;
+            end
         end
-        
-        % get the lick indices for this trial subtract off the trial start
-        % time and convert to seconds
-        lick_times = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1) < 0)) - state_change_inds(k))/30000;
-        % add lick times to lick cell
-        lick_cell{trial_count, 1} = lick_times;
-        
+      
         % save the trial start and stop times (dio channel 1/9)
         stimulus_times(trial_count, :) = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus/trial start
         
@@ -140,12 +135,24 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     % add run distance to run cell
     run_cell{trial_count, 1} = run_dist(ind0:ind1);
     progressbar(trial_count/(num_state_changes/2));
+    
+    % get the lick indices for this trial subtract off the trial start
+    % time and convert to seconds
+    lick_times = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1)) < 0))/30000;
+    if isempty(lick_times)
+        lick_cell{trial_count, 1} = nan;
+    else
+        % add lick times to lick cell
+        lick_cell{trial_count, 1} = lick_times;
+    end
+    
     trial_count = trial_count + 1;
     
 end
 
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
-save([file_path filesep dio_fname '.run'], 'run_cell', 'run_dist', 'stimsequence', 'stimulus_times', '-v7.3')
+save([file_path filesep dio_fname '.run'], 'run_cell', 'run_dist', ...
+    'stimsequence', 'stimulus_times', 'lick_cell', 'jb_behavior', '-v7.3')
 
 clear all

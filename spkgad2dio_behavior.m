@@ -11,7 +11,7 @@
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
 time_before = 1.0;
-time_after  = 2.0;
+time_after  = 4.0;
 jb_behavior = 1;
 % time_after  = 1.2;
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
