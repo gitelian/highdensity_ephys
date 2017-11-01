@@ -37,8 +37,26 @@ path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 % dio                 = readTrodesFileDigitalChannels(path2rec); % replace with load(path2dio)
 load(path2dio)
+
+% dio channel map
+if jb_behavior == 0
+    stim_ind.trial_boolean = 1;
+    stim_ind.stim_id       = 2;
+    stim_ind.running       = 4;
+elseif jb_behavior == 1
+    stim_ind.trial_boolean = 9;
+    stim_ind.stim_id       = 10;
+    stim_ind.running       = 11;
+    stim_ind.LED_opto      = 12;
+    stim_ind.licking       = 13;
+    
+    % this will be the index for the end of the last trial.
+    % used to find stimulus IDs that happend between end of last trial and end of the current trial.
+    last_trial_index = 0;
+end
+
 num_samples         = length(dio.timestamps);
-state_change_inds   = find(diff(dio.channelData(1).data) ~= 0) + 1; % indices of all state changes
+state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
 stimsequence        = zeros(num_state_changes/2, 1);
 stimulus_times      = zeros(num_state_changes/2, 2, 'single');
@@ -53,7 +71,7 @@ dt_before_after = [mean(dt_before_after); dt_before_after; mean(dt_before_after)
 % load running encoder data and calculate distance traveled
 fprintf('\n#####\nloading encoder data and calculating distance traveled\n#####\n');
 encoder         = zeros(num_samples, 1);
-encoder(find(diff(dio.channelData(4).data) > 0)+1) = 1;
+encoder(find(diff(dio.channelData(stim_ind.running).data) > 0)+1) = 1;
 run_dist        = cumsum(encoder);
 run_cell        = cell(num_state_changes/2, 1);
 
@@ -62,7 +80,7 @@ progressbar('extracting running distance')
 
 for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start time with k and the stop time with k+1
     if dynamic_time == 0
-        ind0 = state_change_inds(k) - time_before*30000;   % start time index
+        ind0 = state_change_inds(k) - time_before*30000;  % start time index
         ind1 = state_change_inds(k+1) + time_after*30000; % stop time index
     else
         ind0 = state_change_inds(k) - dt_before_after(trial_count);   % start time index
@@ -71,9 +89,16 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
 
     % determine what stimulus was presented by counting the number of high
     % pusles on the second digital input line.
-    num_pulses                     = length(find(diff(dio.channelData(2).data(ind0:ind1)) < 0));
-    stimsequence(trial_count)      = num_pulses;
-    stimulus_times(trial_count, :) = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus start
+    if jb_behavior == 0
+        num_pulses                     = length(find(diff(dio.channelData(stim_ind.stim_id).data(ind0:ind1)) < 0));
+        stimsequence(trial_count)      = num_pulses;
+        stimulus_times(trial_count, :) = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus/trial start
+    elseif jb_behavior == 1
+        num_pulses                     = length(find(diff(dio.channelData(stim_ind.stim_id).data(last_trial_index:ind1)) < 0));
+        stimsequence(trial_count)      = num_pulses;
+        stimulus_times(trial_count, :) = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus/trial start
+        last_trial_index               = ind1;
+    end
 
     % add run distance to run cell
     run_cell{trial_count, 1} = run_dist(ind0:ind1);
