@@ -22,24 +22,26 @@
 
 %% User Input
 % specify the channels numbers corresponding to each electrode
-echan_num = [1,8; 9,16]; % a1x32 (two)
+% echan_num = [1,8; 9,16]; % a1x32 (two)
+echan_num = [1,8]; % a1x32 (one)
 % echan_num = [1,16];      % lbl64 (one)
 % echan_num = [1,8; 9,12]; % a1x32, a1x16
 % echan_num = [1,4; 5,12]; % a1x16, a1x32
 %echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
-probe_type = {'a1x32-poly2', 'a1x32-poly2'};
+% probe_type = {'a1x32-poly2', 'a1x32-poly2'};
+probe_type = {'a1x32-linear'};
 % probe_type = {'lbl64_batch02'};
-% probe_type = {'a1x16', 'a1x32-poly2'};
-% probe options: a1x16, a1x32, a1x32-poly2, Not ready: cnt64
+% probe_type = {'a1x16-linear', 'a1x32-poly2'};
+% probe options: a1x16-linear, a1x32-linear, a1x32-poly2, Not ready: cnt64
 
 % specify whether proceding code dynamically determines time before and
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
 time_before = 1.0;
-% time_after  = 2.0;
-time_after  = 1.2;
+time_after  = 2.0;
+% time_after  = 1.2;
 jb_behavior = 0;
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
@@ -118,6 +120,8 @@ for electrode = 1:num_electrodes
 
     if isempty(prb_file)
         error('probe file NOT FOUND')
+    % if prb_file has more than 1 entry then the probe name was ambiguous
+    % and it found more than one file with similar names
     elseif length(prb_file) > 1
         error('prb_file name is AMBIGUOUS')
     else
