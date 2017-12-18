@@ -22,17 +22,17 @@
 
 %% User Input
 % specify the channels numbers corresponding to each electrode
-% echan_num = [1,8; 9,16]; % a1x32 (two)
-echan_num = [1,8]; % a1x32 (one)
+echan_num = [1,8; 9,16]; % a1x32 (two)
+% echan_num = [1,8]; % a1x32 (one)
 % echan_num = [1,16];      % lbl64 (one)
 % echan_num = [1,8; 9,12]; % a1x32, a1x16
 % echan_num = [1,4; 5,12]; % a1x16, a1x32
 %echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
-% probe_type = {'a1x32-poly2', 'a1x32-poly2'};
+probe_type = {'a1x32-poly2', 'a1x32-poly2'};
 % probe_type = {'a1x32-poly2', 'a1x32-linear'};
-probe_type = {'a1x32-poly2'};
+% probe_type = {'a1x32-poly2'};
 % probe_type = {'lbl64_batch02'};
 % probe_type = {'a1x16-linear', 'a1x32-poly2'};
 % probe options: a1x16-linear, a1x32-linear, a1x32-poly2, Not ready: cnt64
@@ -76,7 +76,8 @@ for electrode = 1:num_electrodes
 
             %% setup data array
             if chan_count == 1
-                nsamples = length(data.fields.data);
+%                 nsamples = length(data.fields.data);
+                nsamples = 30000*60*10; % 10 minutes of data
                 dtype = data.fields.type;
                 if strcmpi(dtype, 'int16')
                     dmat = zeros(num_chan(electrode), nsamples, 'int16');
@@ -89,7 +90,7 @@ for electrode = 1:num_electrodes
             disp(['adding channel ' num2str(chan_count)])
             progressbar([], chan_count/num_chan(electrode));
 
-            dmat(chan_count, :) = data.fields.data'; %/10;
+            dmat(chan_count, :) = data.fields.data(1:nsamples)'; %/10; % REMOVE NSAMPLES
             chan_count = chan_count + 1;
         end
     end
@@ -117,7 +118,7 @@ for electrode = 1:num_electrodes
 
     % template files should be located in the general data directory
     % add params.prm file with experiment name to directory
-    prb_file = dir([main_data_path filesep probe_type{electrode} '*.prb']);
+    prb_file = dir([main_data_path probe_type{electrode} '*.geom.csv']);
 
     if isempty(prb_file)
         error('probe file NOT FOUND')
@@ -129,12 +130,15 @@ for electrode = 1:num_electrodes
         prb_file = prb_file.name;
     end
 
-    num_channels = (echan_num(electrode, 2) - echan_num(electrode, 1) + 1)*4;
-    % prb_file has to be the FULL file name!
-    updateKKandSlurmFiles(new_folder_path, phy_dat_fname, prb_file, num_channels);
+%     num_channels = (echan_num(electrode, 2) - echan_num(electrode, 1) + 1)*4;
+%     % prb_file has to be the FULL file name!
+%     updateKKandSlurmFiles(new_folder_path, phy_dat_fname, prb_file, num_channels);
 
     % add probe file to directory
     copyfile([main_data_path prb_file], [new_folder_path filesep prb_file])
+    
+    % copy params.json to the main experiment directory??? or just leave it
+    % somewhere common?
 
 end
 
