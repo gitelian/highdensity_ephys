@@ -31,7 +31,8 @@ echan_num = [1,8]; % a1x32 (one)
 
 % number of probes used
 % probe_type = {'a1x32-poly2', 'a1x32-poly2'};
-probe_type = {'a1x32-linear'};
+% probe_type = {'a1x32-poly2', 'a1x32-linear'};
+probe_type = {'a1x32-poly2'};
 % probe_type = {'lbl64_batch02'};
 % probe_type = {'a1x16-linear', 'a1x32-poly2'};
 % probe options: a1x16-linear, a1x32-linear, a1x32-poly2, Not ready: cnt64

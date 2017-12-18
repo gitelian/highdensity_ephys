@@ -1,6 +1,6 @@
 
 
-function spkgad2wt()
+
 
 %% load digital line data
 file_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to extract whisker tracking data');

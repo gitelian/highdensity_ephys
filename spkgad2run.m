@@ -125,14 +125,21 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     run_cell{trial_count, 1} = run_dist(ind0:ind1);
     progressbar(trial_count/(num_state_changes/2));
     
-    % get the lick indices for this trial subtract off the trial start
-    % time and convert to seconds
-    lick_times = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1)) < 0))/30000;
-    if isempty(lick_times)
-        lick_cell{trial_count, 1} = nan;
+    if jb_behavior == 1
+        % get the lick indices for this trial subtract off the trial start
+        % time and convert to seconds
+        lick_times = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1)) < 0))/30000;
+        if isempty(lick_times)
+            lick_cell{trial_count, 1} = nan;
+        else
+            % add lick times to lick cell
+            lick_cell{trial_count, 1} = lick_times;
+        end
+        
     else
-        % add lick times to lick cell
-        lick_cell{trial_count, 1} = lick_times;
+        % you have to put SOMETHING in the cell array other wise Python
+        % loading code freaks out
+        lick_cell{trial_count, 1} = nan;
     end
     
     trial_count = trial_count + 1;
