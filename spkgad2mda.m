@@ -61,10 +61,62 @@ fname = dir_path.name;
 fid = fname(1:7);
 num_chan =  (echan_num(:,2)-echan_num(:,1)+1)*4;
 num_electrodes = size(echan_num, 1);
-progressbar('electrodes', 'channels')
+progressbar('electrodes', '.dat channels', '.mda channels')
 
 for electrode = 1:num_electrodes
 
+    %% create flat array .dat file for waveform extraction
+    %  the mda file created by mountainsort is too big to load in to memory
+    %  for this reason we have to make two files containing the exact same
+    %  data...its a waste but we need the waveforms.
+
+    chan_count = 1;
+
+    for ntrode = echan_num(electrode, 1):echan_num(electrode, 2)
+        for chan = 1:4
+
+            fext = ['.LFP_nt' num2str(ntrode) 'ch' num2str(chan) '.dat'];
+            ffullname = [file_path filesep fid fext];
+            data = readTrodesExtractedDataFile(ffullname);
+
+            %% setup data array
+            if chan_count == 1
+                nsamples = length(data.fields.data);
+                dtype = data.fields.type;
+
+                if strcmpi(dtype, 'int16')
+                    %nsamples = 30000*60*5;
+                    dmat = zeros(1, nsamples*num_chan(electrode), 'int16');
+                    % TODO add more checks for different datatypes
+                else
+                    error('could not identify the datatype')
+                end
+            end
+
+            %% add extracted data to data array
+            disp(['adding channel ' num2str(chan_count)])
+            progressbar([], chan_count/num_chan(electrode));
+
+            dmat(1, chan_count:num_chan(electrode):nsamples*num_chan(electrode)) = data.fields.data'; %/10;
+            chan_count = chan_count + 1;
+        end
+    end
+
+% save data array as a binary file
+%     progressbar(electrode/num_electrodes, [])
+    new_folder_path = [fpath filesep fid '_e' num2str(electrode)];
+%    new_folder_path = [fpath filesep fid '_e' num2str(electrode) filesep 'mountainsort_test'];
+
+    if exist(new_folder_path, 'dir') == 0
+        disp('Making new electrode directory')
+        mkdir(new_folder_path)
+    end
+    phy_dat_fname = [fid '-e' num2str(electrode)];
+    fid2write = fopen([new_folder_path filesep phy_dat_fname  '.phy.dat'], 'w');
+    fwrite(fid2write, dmat, 'int16');
+    fclose(fid2write);
+    
+    %% create mda file for MountainSort
     chan_count = 1;
 
     for ntrode = echan_num(electrode, 1):echan_num(electrode, 2)
@@ -88,31 +140,25 @@ for electrode = 1:num_electrodes
 
             %% add extracted data to data array
             disp(['adding channel ' num2str(chan_count)])
-            progressbar([], chan_count/num_chan(electrode));
+            progressbar([], [], chan_count/num_chan(electrode));
 
             dmat(chan_count, :) = data.fields.data(1:nsamples)'; %/10; % REMOVE NSAMPLES
             chan_count = chan_count + 1;
         end
     end
 
-    %% save data array as a mda file
+    % save data array as a mda file
     progressbar(electrode/num_electrodes, [])
-    new_folder_path = [fpath filesep fid '_e' num2str(electrode)];
 
-    if exist(new_folder_path, 'dir') == 0
-        disp('Making new electrode directory')
-        mkdir(new_folder_path)
-    end
-    
     % write to mda format with mountainlab matlab code
     phy_dat_fname = [fid '-e' num2str(electrode)];
     fid2write = [new_folder_path filesep phy_dat_fname  '.mda'];
     writemda16i(dmat, fid2write);
+    
+    clear dmat
 
     %% add files needed by Mountainsort
-    
-    
-    
+
     % TODO: select probe file based on electrode configuration not just
     % number of channels used
 
