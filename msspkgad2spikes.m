@@ -69,7 +69,7 @@ for exp_i = 1:num_exp
     path2run     = [file_path filesep run_fname '.run'];
     path2ms    = [file_path filesep exp_dir_name filesep];
     mda_struct  = dir([path2ms filesep rec_fname '*firings-curated.mda']);
-    data_struct   = dir([path2ms filesep rec_fname '-e' num2str(exp_i) '.mda']); % this may be problematic if the convention is not kept
+    phy_struct   = dir([path2ms filesep rec_fname '*.phy.dat']);
     prb_struct   = dir([path2ms filesep '*.geom.csv']);
     
     %   NOTE: probe file name must have the number of channels as the 4th and
@@ -80,11 +80,11 @@ for exp_i = 1:num_exp
 
     if isempty(mda_struct)
         warning(['no curated.mda file found in ' path2ms])
-    elseif isempty(data_struct)
+    elseif isempty(phy_struct)
         warning(['no raw data .mda file found in ' path2ms])
     else
         disp(['creating spikes file for ' exp_dir_name])
-        data_name  = [path2ms data_struct.name];
+        phy_name  = [path2ms phy_struct.name];
         mda_name = [path2ms mda_struct.name];
         
         
@@ -229,7 +229,10 @@ clear trials stimuli spiketimes stimsequence stimulus_sample_num ...
 %% retrive waveforms for all units
 fprintf('\n#####\nloading raw data for waveform extraction\n#####\n')
 
-raw_data = readmda(data_name);
+aio = fopen(phy_name);
+raw_data = fread(aio,'int16=>int16');
+fclose(aio);
+clear aio
 raw_data = reshape(raw_data, num_chan, length(raw_data)/num_chan);
 % raw_data = reshape(single(raw_data), num_chan, length(raw_data)/num_chan);
 % TEMP COMMENTS
@@ -294,7 +297,7 @@ save([path2ms filesep fid '-e' num2str(exp_i) '-spikes.mat'], 'spikes', '-v7.3')
 if exp_i ~= num_exp
     fprintf('\n#####\nCLEARING DATA\n#####\n')
     clear all
-    load([tempdir filesep 'kk2spikes_temp.mat'])
+    load([tempdir filesep 'ms2spikes_temp.mat'])
 end
     end % end else
 end % end for loop
