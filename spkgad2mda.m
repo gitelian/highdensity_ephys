@@ -146,7 +146,7 @@ for electrode = 1:num_electrodes
     end
 
     % save data array as a mda file
-    progressbar(electrode/num_electrodes, [])
+    progressbar(electrode/num_electrodes, [], [])
 
     % write to mda format with mountainlab matlab code
     phy_dat_fname = [fid '-e' num2str(electrode)];
