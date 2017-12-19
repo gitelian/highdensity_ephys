@@ -85,7 +85,6 @@ for electrode = 1:num_electrodes
                 dtype = data.fields.type;
 
                 if strcmpi(dtype, 'int16')
-                    %nsamples = 30000*60*5;
                     dmat = zeros(1, nsamples*num_chan(electrode), 'int16');
                     % TODO add more checks for different datatypes
                 else
@@ -128,8 +127,7 @@ for electrode = 1:num_electrodes
 
             %% setup data array
             if chan_count == 1
-%                 nsamples = length(data.fields.data);
-                nsamples = 30000*60*10; % 10 minutes of data
+                nsamples = length(data.fields.data);
                 dtype = data.fields.type;
                 if strcmpi(dtype, 'int16')
                     dmat = zeros(num_chan(electrode), nsamples, 'int16');
