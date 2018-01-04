@@ -119,9 +119,9 @@ labels       = nan(length(cluster_ids), 2);
 best_channel = nan(length(cluster_ids), 2);
 
 for k = 1:length(cluster_ids)
-    labels(k, :) = [cluster_ids(k), 1]; % 1 for all single units
+    labels(k, :) = [cluster_ids(k), 2]; % 2 for all single units % 1:MUA, 2:single-unit
     % find first index for cluster ID k
-    cluster_inds = find(mda_spikes(3, :) == cluster_ids(k), 2); % 1:MUA, 2:single-unit
+    cluster_inds = find(mda_spikes(3, :) == cluster_ids(k), 1); 
     best_channel(k, :) = [cluster_ids(k), mda_spikes(1, cluster_inds)];
 end
 
