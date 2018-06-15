@@ -2,6 +2,11 @@
 
 
 
+% G. Telian
+% Adesnik Lab
+% UC Berkeley
+% 201809611
+
 function run_mountainview()
 
 data_dir  = '/media/greg/data/neuro/';
@@ -30,7 +35,8 @@ if ~isempty(mda_raw) || ~isempty(prb_geom) || ~isempty(mda_firings)
     unix(['mountainview' ' '...
         '--raw=' [e_name filesep mda_raw.name] ' '...
         '--geom=' [e_name filesep prb_geom.name] ' '...
-        '--firings=' [e_name filesep mda_firings.name]])
+        '--firings=' [e_name filesep mda_firings.name] ' '...
+        '--samplerate=30000'])
 else
     warning('spike sorting either was not run or it failed. make sure it completes properly')
 end
