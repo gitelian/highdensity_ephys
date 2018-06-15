@@ -49,8 +49,6 @@ fprintf('\n#####\nloading whisker tracking data\n#####\n');
 load(path2wt)
 run = load(path2run, '-mat');
 
-% wt = [ang, sp, amp, phs, vel, wsk];
-
 % load trial digital line and find trial start and end indices
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 % dio                 = readTrodesFileDigitalChannels(path2rec);
@@ -58,6 +56,7 @@ path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
 load(path2dio)
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
+%%
 num_state_changes   = length(state_change_inds);
 stimsequence        = run.stimsequence;
 stimulus_times      = run.stimulus_times;
@@ -94,9 +93,18 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
 %     temp_hsv_ind1 = find(frame_inds <= ind1, 1, 'last');
 %     frame_cell{trial_count, 1} = temp_hsv_ind0:temp_hsv_ind1;
 %     wt_cell{trial_count, 1} = wt(temp_hsv_ind0:temp_hsv_ind1, :);
+    curve_bool = exists(cur);
+    if curve_bool == 0
+        wt_cell{trial_count, 1} = [ang{trial_count, 1}, sp{trial_count, 1},...
+            amp{trial_count, 1}, phs{trial_count, 1}, vel{trial_count, 1}, wsk{trial_count, 1}];
+    elseif curve_bool == 1
+        wt_cell{trial_count, 1} = [ang{trial_count, 1}, sp{trial_count, 1},...
+            amp{trial_count, 1}, phs{trial_count, 1}, vel{trial_count, 1}, wsk{trial_count, 1}, cur{trial_count, 1}];       
+    else
+        error('something went wrong with the curvature variable');
+    end
     
-    wt_cell{trial_count, 1} = [ang{trial_count, 1}, sp{trial_count, 1},...
-        amp{trial_count, 1}, phs{trial_count, 1}, vel{trial_count, 1}, wsk{trial_count, 1}];
+    % if curvature vector exists add it to wt_cell
     progressbar(trial_count/(num_state_changes/2));
     trial_count = trial_count + 1;
 end
