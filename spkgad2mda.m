@@ -21,19 +21,23 @@
 %%
 
 %% User Input
-% specify the channels numbers corresponding to each electrode
+% specify the trode-channels numbers corresponding to each electrode
 echan_num = [1,8; 9,16]; % a1x32 (two)
+% echan_num = [1,2; 3,4]; % buzaki-16 2 shank
 % echan_num = [1,8]; % a1x32 (one)
 % echan_num = [1,16];      % lbl64 (one)
+% echan_num = [1,4];
 % echan_num = [1,8; 9,12]; % a1x32, a1x16
 % echan_num = [1,4; 5,12]; % a1x16, a1x32
 %echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
 probe_type = {'a1x32-poly2', 'a1x32-poly2'};
+% probe_type = {'a1x16-buzk2'};
 % probe_type = {'a1x32-poly2', 'a1x32-linear'};
 % probe_type = {'a1x32-poly2'};
 % probe_type = {'lbl64_batch02'};
+% probe_type = {'a1x16-linear'};
 % probe_type = {'a1x16-linear', 'a1x32-poly2'};
 % probe options: a1x16-linear, a1x32-linear, a1x32-poly2, Not ready: cnt64
 
@@ -110,7 +114,7 @@ for electrode = 1:num_electrodes
         disp('Making new electrode directory')
         mkdir(new_folder_path)
     end
-    phy_dat_fname = [fid '-e' num2str(electrode)];
+    phy_dat_fname = [fid '_e' num2str(electrode)];
     fid2write = fopen([new_folder_path filesep phy_dat_fname  '.phy.dat'], 'w');
     fwrite(fid2write, dmat, 'int16');
     fclose(fid2write);
@@ -140,7 +144,7 @@ for electrode = 1:num_electrodes
             disp(['adding channel ' num2str(chan_count)])
             progressbar([], [], chan_count/num_chan(electrode));
 
-            dmat(chan_count, :) = data.fields.data(1:nsamples)'; %/10; % REMOVE NSAMPLES
+            dmat(chan_count, :) = data.fields.data(:)'; %/10; % REMOVE NSAMPLES
             chan_count = chan_count + 1;
         end
     end
@@ -149,7 +153,7 @@ for electrode = 1:num_electrodes
     progressbar(electrode/num_electrodes, [], [])
 
     % write to mda format with mountainlab matlab code
-    phy_dat_fname = [fid '-e' num2str(electrode)];
+    phy_dat_fname = [fid '_e' num2str(electrode)];
     fid2write = [new_folder_path filesep phy_dat_fname  '.mda'];
     writemda16i(dmat, fid2write);
     
