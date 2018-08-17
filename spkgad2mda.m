@@ -22,32 +22,32 @@
 
 %% User Input
 % specify the trode-channels numbers corresponding to each electrode
-echan_num = [1,8; 9,16]; % a1x32 (two)
+% echan_num = [1,8; 9,16]; % a1x32 (two)
 % echan_num = [1,2; 3,4]; % buzaki-16 2 shank
 % echan_num = [1,8]; % a1x32 (one)
 % echan_num = [1,16];      % lbl64 (one)
 % echan_num = [1,4];
 % echan_num = [1,8; 9,12]; % a1x32, a1x16
-% echan_num = [1,4; 5,12]; % a1x16, a1x32
+echan_num = [1,4; 5,12]; % a1x16, a1x32
 %echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
-probe_type = {'a1x32-poly2', 'a1x32-poly2'};
+% probe_type = {'a1x32-poly2', 'a1x32-poly2'};
+% probe_type = {'a1x32-poly2'};
 % probe_type = {'a1x16-buzk2'};
 % probe_type = {'a1x32-poly2', 'a1x32-linear'};
-% probe_type = {'a1x32-poly2'};
 % probe_type = {'lbl64_batch02'};
 % probe_type = {'a1x16-linear'};
+probe_type = {'a1x16-linear', 'a1x32-poly2'};
 % probe_type = {'a1x16-linear', 'a1x32-poly2'};
 % probe options: a1x16-linear, a1x32-linear, a1x32-poly2, Not ready: cnt64
 
 % specify whether proceding code dynamically determines time before and
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
-time_before = 1.0;
-time_after  = 2.0;
-% time_after  = 1.2;
-jb_behavior = 0;
+time_before = 2.0; % 1 (8 pos)
+time_after  = 2.0; % 2 (8 pos)
+jb_behavior = 1;
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
 %% Main Code
@@ -202,6 +202,7 @@ catch
     error('#### spkgad2dio did not work! ####\n')
 end
 
+disp(fid)
 clear all
 
 
