@@ -93,7 +93,7 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
 %     temp_hsv_ind1 = find(frame_inds <= ind1, 1, 'last');
 %     frame_cell{trial_count, 1} = temp_hsv_ind0:temp_hsv_ind1;
 %     wt_cell{trial_count, 1} = wt(temp_hsv_ind0:temp_hsv_ind1, :);
-    curve_bool = exists(cur);
+    curve_bool = exist('cur', 'var');
     if curve_bool == 0
         wt_cell{trial_count, 1} = [ang{trial_count, 1}, sp{trial_count, 1},...
             amp{trial_count, 1}, phs{trial_count, 1}, vel{trial_count, 1}, wsk{trial_count, 1}];
