@@ -23,12 +23,18 @@ if jb_behavior == 0
     stim_ind.trial_boolean = 1;
     stim_ind.stim_id       = 2;
     stim_ind.running       = 4;
+    stim_ind.led1          = 5;
+    stim_ind.led2          = 6;
+    stim_ind.camera        = 14;
 elseif jb_behavior == 1
+    stim_ind.jitter        = 7;
     stim_ind.trial_boolean = 9;
     stim_ind.stim_id       = 10;
     stim_ind.running       = 11;
-    stim_ind.LED_opto      = 12;
-    stim_ind.licking       = 13;
+    stim_ind.licking       = 12;
+    stim_ind.camera        = 14;
+    stim_ind.puffer        = 15;
+    stim_ind.led1          = 5;
 end
 
 path2rec     = [fpath filesep rec_fname '.rec'];
