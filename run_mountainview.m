@@ -9,6 +9,17 @@
 
 function run_mountainview()
 
+% Save library paths
+MatlabPath = getenv('LD_LIBRARY_PATH');
+
+% Make Matlab use system libraries
+% setenv('LD_LIBRARY_PATH', getenv('PATH'))
+path1 = getenv('PATH');
+path1 = [path1 ':/home/greg/code/mountain_suite/mountainview/bin'];
+path1 = [path1 ':/home/greg/code/mountain_suite/mountainview/bin'];
+path1 = [path1 ':/home/greg/code/mountain_suite/mountainlab/bin'];
+setenv('PATH', path1)
+
 data_dir  = '/media/greg/data/neuro/';
 
 % select experiments to process
@@ -32,7 +43,7 @@ mda_firings = dir([dir_name filesep '*-firings.mda']);
 if ~isempty(mda_raw) || ~isempty(prb_geom) || ~isempty(mda_firings)
     
     % run mountainview
-    unix(['mountainview' ' '...
+    system(['mountainview' ' '...
         '--raw=' [e_name filesep mda_raw.name] ' '...
         '--geom=' [e_name filesep prb_geom.name] ' '...
         '--firings=' [e_name filesep mda_firings.name] ' '...
@@ -40,6 +51,9 @@ if ~isempty(mda_raw) || ~isempty(prb_geom) || ~isempty(mda_firings)
 else
     warning('spike sorting either was not run or it failed. make sure it completes properly')
 end
+
+% Reassign old library paths
+setenv('LD_LIBRARY_PATH', MatlabPath)
 
 % go back to MATLAB startup directory
 startup
