@@ -40,6 +40,7 @@ load(path2dio)
 
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
+
 num_state_changes   = length(state_change_inds);
 stimsequence        = zeros(num_state_changes/2, 1);
 stimulus_times      = zeros(num_state_changes/2, 2, 'single');
@@ -58,6 +59,7 @@ encoder(find(diff(dio.channelData(stim_ind.running).data) > 0)+1) = 1;
 run_dist        = cumsum(encoder);
 run_cell        = cell(num_state_changes/2, 1);
 lick_cell       = cell(num_state_changes/2, 1);
+hsv_times       = zeros(num_state_changes/2, 2);
 
 if jb_behavior
     % this will be the index for the end of the last trial.
@@ -87,10 +89,10 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     elseif jb_behavior == 1
         
         % led_opto should be 0 if LED was off and 1 if LED was on
-        led_opto = length(find(diff(dio.channelData(stim_ind.LED_opto).data(last_trial_index:ind1) > 0)));
+        led_opto = length(find(diff(dio.channelData(stim_ind.led1).data(last_trial_index:ind1) > 0)));
         
         % offset stim IDs by 9 to indicate LED/optogenetic trials vs no stim trials
-        if led_opto == 1
+        if led_opto == 1 % changed to >= 1 because there was more than 1 pulse...due to noise
             stim_offset = 9;
         elseif led_opto == 0
             stim_offset = 0;
@@ -128,12 +130,18 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     if jb_behavior == 1
         % get the lick indices for this trial subtract off the trial start
         % time and convert to seconds
-        lick_times = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1)) < 0))/30000;
-        if isempty(lick_times)
+        lick_onset  = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1)) > 0))/30000;
+        lick_offset = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1)) < 0))/30000;
+        lick_dur    = lick_offset - lick_onset;
+                
+        if isempty(lick_onset)
             lick_cell{trial_count, 1} = nan;
         else
+            % remove noise on lick channel
+            lick_inds = find(lick_dur > 0.005);
+            
             % add lick times to lick cell
-            lick_cell{trial_count, 1} = lick_times;
+            lick_cell{trial_count, 1} = lick_onset(lick_inds);
         end
         
     else
@@ -141,6 +149,9 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
         % loading code freaks out
         lick_cell{trial_count, 1} = nan;
     end
+    
+    %TODO: find and recorded HSV start and end times
+%     hsv_times(trial_count, :) = ???
     
     trial_count = trial_count + 1;
     
