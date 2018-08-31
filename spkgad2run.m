@@ -59,7 +59,8 @@ encoder(find(diff(dio.channelData(stim_ind.running).data) > 0)+1) = 1;
 run_dist        = cumsum(encoder);
 run_cell        = cell(num_state_changes/2, 1);
 lick_cell       = cell(num_state_changes/2, 1);
-hsv_times       = zeros(num_state_changes/2, 2);
+hsv_times       = cell(num_state_changes/2, 1);
+dio_cell        = cell(num_state_changes/2, 1);
 
 if jb_behavior
     % this will be the index for the end of the last trial.
@@ -127,12 +128,25 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     run_cell{trial_count, 1} = run_dist(ind0:ind1);
     progressbar(trial_count/(num_state_changes/2));
     
+    %% filter lick line and count licks
     if jb_behavior == 1
         % get the lick indices for this trial subtract off the trial start
         % time and convert to seconds
         lick_onset  = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1)) > 0))/30000;
         lick_offset = (find(diff(dio.channelData(stim_ind.licking).data(ind0:ind1)) < 0))/30000;
-        lick_dur    = lick_offset - lick_onset;
+        
+        onset_length  = length(lick_onset);
+        offset_length = length(lick_offset);
+        if onset_length ~= offset_length
+            % trim vectors to shortest length (sometimes a high pulse will
+            % get cut off before going low making the vectors different
+            % lengths)
+            [min_length, min_ind] = min([onset_length; offset_length], [], 1);
+            lick_onset(min_length:end) = [];
+            lick_offset(min_length:end) = [];
+        end
+        
+        lick_dur = lick_offset - lick_onset;
                 
         if isempty(lick_onset)
             lick_cell{trial_count, 1} = nan;
@@ -150,9 +164,19 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
         lick_cell{trial_count, 1} = nan;
     end
     
-    %TODO: find and recorded HSV start and end times
-%     hsv_times(trial_count, :) = ???
+    %% find and record HSV start and end times
+    if str2num(fid(4:end)) > 1728
+        hsv_times{trial_count, 1} = (find(diff(dio.channelData(stim_ind.camera).data(ind0:ind1)) > 0))/30000;
+    end
     
+    %% add digital channels to dio_cell
+    temp = zeros(16, length(run_cell{trial_count}), 'logical');
+    for dio_chan = 1:16
+        temp(dio_chan, :) = dio.channelData(dio_chan).data(ind0:ind1);
+    end
+    dio_cell{trial_count} = temp;
+
+    %% iterate trial_count
     trial_count = trial_count + 1;
     
 end
@@ -160,6 +184,7 @@ end
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
 save([file_path filesep dio_fname '.run'], 'run_cell', 'run_dist', ...
-    'stimsequence', 'stimulus_times', 'lick_cell', 'jb_behavior', '-v7.3')
+    'stimsequence', 'stimulus_times', 'lick_cell', 'jb_behavior', 'hsv_times',...
+    'stim_ind', 'time_before', 'time_after', 'dio_cell', 't_after_stim', 'dynamic_time', 'stim_duration', '-v7.3')
 
 clear all
