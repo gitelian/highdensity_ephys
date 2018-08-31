@@ -13,12 +13,13 @@ function run_mountainview()
 MatlabPath = getenv('LD_LIBRARY_PATH');
 
 % Make Matlab use system libraries
-% setenv('LD_LIBRARY_PATH', getenv('PATH'))
-path1 = getenv('PATH');
-path1 = [path1 ':/home/greg/code/mountain_suite/mountainview/bin'];
-path1 = [path1 ':/home/greg/code/mountain_suite/mountainview/bin'];
-path1 = [path1 ':/home/greg/code/mountain_suite/mountainlab/bin'];
-setenv('PATH', path1)
+setenv('LD_LIBRARY_PATH', getenv('PATH'))
+% path1 = getenv('PATH');
+% path1 = [path1 ':/home/greg/code/mountain_suite/mountainview/bin'];
+% path1 = [path1 ':/home/greg/code/mountain_suite/mountainview/bin'];
+% path1 = [path1 ':/home/greg/code/mountain_suite/mountainlab/bin'];
+% path1 = [path1 ':/home/greg/Qt/5.11.1/gcc_64/bin'];
+% setenv('PATH', path1)
 
 data_dir  = '/media/greg/data/neuro/';
 
