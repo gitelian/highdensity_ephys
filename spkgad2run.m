@@ -37,9 +37,20 @@ path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 % dio                 = readTrodesFileDigitalChannels(path2rec); % replace with load(path2dio)
 load(path2dio)
+neuro = 1;
 
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
+
+% IGNORE SPURIOUS PULSES ON TRIAL_BOOLEAN CHANNEL
+dt = diff(state_change_inds); % compute samples between state changes
+st_dur = state_change_inds(2:2:end) - state_change_inds(1:2:end); % compute time between offset and onset
+
+del_inds = find(st_dur < stim_duration*30000/2)*2; % get offset indices to delete
+del_inds_offset = del_inds - 1; % get onset indices to delete
+del_inds_all = sort([del_inds; del_inds_offset]); % combine indices
+
+state_change_inds(del_inds_all) = []; % delete indices that do not correspond to a real trial boolean
 
 num_state_changes   = length(state_change_inds);
 stimsequence        = zeros(num_state_changes/2, 1);
@@ -116,7 +127,7 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
                 stimsequence(trial_count) = num_pulses + stim_offset - 5;
             end
         end
-      
+        
         % save the trial start and stop times (dio channel 1/9)
         stimulus_times(trial_count, :) = (double([state_change_inds(k), state_change_inds(k+1)]) - double(ind0))/30000; % gets time of stimulus/trial start
         
@@ -185,6 +196,19 @@ progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
 save([file_path filesep dio_fname '.run'], 'run_cell', 'run_dist', ...
     'stimsequence', 'stimulus_times', 'lick_cell', 'jb_behavior', 'hsv_times',...
-    'stim_ind', 'time_before', 'time_after', 'dio_cell', 't_after_stim', 'dynamic_time', 'stim_duration', '-v7.3')
+    'stim_ind', 'time_before', 'time_after', 'dio_cell', 't_after_stim',...
+    'dynamic_time', 'stim_duration', '-v7.3')
+
+if neuro
+    save(path2dio, 'dio',...
+        'echan_num', 'probe_type', 'dynamic_time', 'time_before', 'time_after',...
+        'jb_behavior', 'stim_ind', 't_after_stim', 'stim_duration', 'state_change_inds', 'neuro', ...
+        '-v7.3')
+else
+    save(path2dio, 'dio',...
+        'dynamic_time', 'time_before', 'time_after',...
+        'jb_behavior', 'stim_ind', 't_after_stim', 'stim_duration', 'state_change_inds', 'neuro', ...
+        '-v7.3')
+end
 
 clear all
