@@ -66,7 +66,7 @@ path2dio     = [dio_path filesep dio_fname '.mat']; % change to .mat
 load(path2dio)
 num_electrodes      = size(echan_num, 1);
 num_samples         = length(dio.timestamps);
-state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
+% state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
 num_state_changes   = length(state_change_inds);
 stimsequence        = run.stimsequence;
 
