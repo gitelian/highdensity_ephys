@@ -48,7 +48,7 @@ dynamic_time = 0;
 jb_behavior = 1;
 time_before = 3.0; % 3 (jb_behavior), 1 (8 pos)
 time_after  = 3.0; % 3 (jb_behavior), 2 (8 pos)
-stim_duration = 1.0; % 1 for jb_behavior, 1.5 for 8-obj-pos
+stim_duration = 1; % 1 for jb_behavior, 1.5 for 8-obj-pos
 % after the stimulus stops, how long do we wait before beginning our analysis
 t_after_stim = 0; % 0 for jb_behavior, 0.5 for 8-object-pos
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
@@ -128,6 +128,8 @@ if neuro
         fid2write = fopen([new_folder_path filesep phy_dat_fname  '.phy.dat'], 'w');
         fwrite(fid2write, dmat, 'int16');
         fclose(fid2write);
+        
+        disp('Created .dat file moving on to .mda file')
         
         %% create mda file for MountainSort
         chan_count = 1;
