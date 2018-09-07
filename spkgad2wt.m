@@ -55,7 +55,7 @@ fprintf('\n#####\nloading trial digital line and finding trial start and end ind
 path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
 load(path2dio)
 num_samples         = length(dio.timestamps);
-state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
+% state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
 %%
 num_state_changes   = length(state_change_inds);
 stimsequence        = run.stimsequence;
@@ -111,8 +111,22 @@ end
 
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
-save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'stimsequence',...
-    'stimulus_times', '-v7.3')
+
+if exist('frm', 'var') && ~exist('pulse_sequence', 'var')
+    save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'stimsequence',...
+    'stimulus_times', 'frm', 'center_of_boundary', 'whisk_in_frame', '-v7.3')
+
+elseif ~exist('frm', 'var') && exist('pulse_sequence', 'var')
+    save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'stimsequence',...
+        'stimulus_times', 'pulse_sequence', '-v7.3')
+    
+elseif exist('frm', 'var') && exist('pulse_sequence', 'var')
+    save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'stimsequence',...
+        'stimulus_times', 'pulse_sequence', 'frm', 'center_of_boundary', 'whisk_in_frame', '-v7.3')    
+else
+    save([file_path filesep rec_fname '.wtr'], 'wt_cell', 'stimsequence',...
+        'stimulus_times', '-v7.3')
+end
 
 clear all
 
