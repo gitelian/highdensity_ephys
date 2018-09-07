@@ -16,16 +16,16 @@ mlp_path  = [data_dir filesep 'mountainsort3.mlp'];
 % need to switch paths to use system library rather than MATLABs own
 % https://stackoverflow.com/questions/28460848/matlab-system-command
 % Save library paths
-% MatlabPath = getenv('LD_LIBRARY_PATH');
+MatlabPath = getenv('LD_LIBRARY_PATH');
 
 % Make Matlab use system libraries
-% setenv('LD_LIBRARY_PATH', getenv('PATH'))
-path1 = getenv('PATH');
-path1 = [path1 ':/home/greg/code/mountain_suite/mountainlab/bin'];
-path1 = [path1 ':/home/greg/code/mountain_suite/mlpipeline/bin'];
-path1 = [path1 ':/home/greg/code/mountain_suite/mountainview/bin'];
-path1 = [path1 ':/home/greg/Qt/5.11.1/gcc_64/bin'];
-setenv('PATH', path1)
+setenv('LD_LIBRARY_PATH', getenv('PATH'))
+% path1 = getenv('PATH');
+% path1 = [path1 ':/home/greg/code/mountain_suite/mountainlab/bin'];
+% path1 = [path1 ':/home/greg/code/mountain_suite/mlpipeline/bin'];
+% path1 = [path1 ':/home/greg/code/mountain_suite/mountainview/bin'];
+% path1 = [path1 ':/home/greg/Qt/5.11.1/gcc_64/bin'];
+% setenv('PATH', path1)
 
 % select experiments to process
 dir_cell = uigetdir2(data_dir, 'Select experiment directories to spike sort');
@@ -90,7 +90,7 @@ for k_dir = 1:length(dir_cell)
 end
 
 % Reassign old library paths
-% setenv('LD_LIBRARY_PATH', MatlabPath)
+setenv('LD_LIBRARY_PATH', MatlabPath)
 
 end
 

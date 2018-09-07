@@ -50,7 +50,7 @@ if ~isempty(mda_raw) || ~isempty(prb_geom) || ~isempty(mda_firings)
         '--firings=' [e_name filesep mda_firings.name] ' '...
         '--samplerate=30000'])
 else
-    warning('spike sorting either was not run or it failed. make sure it completes properly')
+    warning('did you select an electrode directory? if you did then spike sorting either was not run or it failed. make sure it completes properly')
 end
 
 % Reassign old library paths
