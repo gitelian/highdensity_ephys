@@ -37,7 +37,6 @@ path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
 fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
 % dio                 = readTrodesFileDigitalChannels(path2rec); % replace with load(path2dio)
 load(path2dio)
-neuro = 1;
 
 num_samples         = length(dio.timestamps);
 state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
