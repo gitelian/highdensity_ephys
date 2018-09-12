@@ -241,6 +241,9 @@ progressbar(1)
 num_units       = size(spikes.labels, 1);
 num_spikes      = length(spikes.assigns);
 % waveforms       = zeros(num_spikes, 60, num_chan, 'single');
+
+% in case memory error use this to get around it manually
+% save('temp.mat', 'num_spikes', 'num_chan', 'spikes', 'spk_inds', 'path2kwik', 'fid', 'exp_i', 'raw_data', '-v7.3')
 waveforms       = zeros(num_spikes, 60, num_chan, 'int16'); % may not need SINGLE...make sure this works!!!
 num_raw_samples = size(raw_data, 2);
 
