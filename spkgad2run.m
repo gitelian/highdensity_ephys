@@ -147,20 +147,26 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
         
         onset_length  = length(lick_onset);
         offset_length = length(lick_offset);
-        if onset_length ~= offset_length
+        
+        if isempty(lick_onset) || isempty(lick_offset)
+            licks = 0;
+            
+        elseif onset_length ~= offset_length
             % trim vectors to shortest length (sometimes a high pulse will
             % get cut off before going low making the vectors different
             % lengths)
             [min_length, min_ind] = min([onset_length; offset_length], [], 1);
             lick_onset(min_length:end) = [];
             lick_offset(min_length:end) = [];
+            licks = 1;
         end
         
         lick_dur = lick_offset - lick_onset;
                 
-        if isempty(lick_onset)
+        if isempty(lick_onset) || licks == 0
             lick_cell{trial_count, 1} = nan;
-        else
+            
+        elseif licks == 1
             % remove noise on lick channel
             lick_inds = find(lick_dur > 0.005);
             
