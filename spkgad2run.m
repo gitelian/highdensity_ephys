@@ -15,9 +15,10 @@
 %%
 
 file_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to extract run data');
+% control_pos = 9;
 
 if file_path == 0
-    error('no directory was selected')
+    derror('no directory was selected')
 end
 
 [~, fname, ~] = fileparts(file_path);
@@ -100,7 +101,7 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     elseif jb_behavior == 1
         
         % led_opto should be 0 if LED was off and 1 if LED was on
-        led_opto = length(find(diff(dio.channelData(stim_ind.led1).data(last_trial_index:ind1) > 0)));
+        led_opto = length(find(diff(dio.channelData(stim_ind.led1).data(last_trial_index:ind1)) > 0));
         
         % offset stim IDs by 9 to indicate LED/optogenetic trials vs no stim trials
         if led_opto == 1 % changed to >= 1 because there was more than 1 pulse...due to noise
@@ -113,10 +114,17 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
         num_pulses  = length(find(diff(dio.channelData(stim_ind.stim_id).data(last_trial_index:ind1)) < 0));
         high_times  = find(diff(dio.channelData(stim_ind.stim_id).data(last_trial_index:ind1)) > 0);
         low_times   = find(diff(dio.channelData(stim_ind.stim_id).data(last_trial_index:ind1)) < 0);
+%         num_pulses  = length(find(diff(dio.channelData(stim_ind.stim_id).data(ind0:ind1)) < 0));
+%         high_times  = find(diff(dio.channelData(stim_ind.stim_id).data(ind0:ind1)) > 0);
+%         low_times   = find(diff(dio.channelData(stim_ind.stim_id).data(ind0:ind1)) < 0);
+
         diff_times  = (low_times - high_times)/30000;
         catch_trial = find(diff_times > 0.006);
         
-        if catch_trial
+        
+        if num_pulses == 0
+            stimsequence(trial_count) = 0;
+        elseif catch_trial
             stimsequence(trial_count) = 9 + stim_offset;
         else
             if num_pulses  <= 4
@@ -158,6 +166,8 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
             [min_length, min_ind] = min([onset_length; offset_length], [], 1);
             lick_onset(min_length:end) = [];
             lick_offset(min_length:end) = [];
+            licks = 1;
+        else
             licks = 1;
         end
         
@@ -202,18 +212,18 @@ fprintf('\n#####\nsaving data\n#####\n');
 save([file_path filesep dio_fname '.run'], 'run_cell', 'run_dist', ...
     'stimsequence', 'stimulus_times', 'lick_cell', 'jb_behavior', 'hsv_times',...
     'stim_ind', 'time_before', 'time_after', 'dio_cell', 't_after_stim',...
-    'dynamic_time', 'stim_duration', '-v7.3')
+    'dynamic_time', 'stim_duration', 'control_pos', '-v7.3')
 
 if neuro
     save(path2dio, 'dio',...
         'echan_num', 'probe_type', 'dynamic_time', 'time_before', 'time_after',...
         'jb_behavior', 'stim_ind', 't_after_stim', 'stim_duration', 'state_change_inds', 'neuro', ...
-        '-v7.3')
+        'control_pos', '-v7.3')
 else
     save(path2dio, 'dio',...
         'dynamic_time', 'time_before', 'time_after',...
         'jb_behavior', 'stim_ind', 't_after_stim', 'stim_duration', 'state_change_inds', 'neuro', ...
-        '-v7.3')
+        'control_pos', '-v7.3')
 end
 
 clear all

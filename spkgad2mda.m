@@ -45,6 +45,7 @@ probe_type = {'a1x32-poly2'};
 % specify whether proceding code dynamically determines time before and
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
+control_pos = 9;
 jb_behavior = 1;
 time_before = 3.0; % 3 (jb_behavior), 1 (8 pos)
 time_after  = 3.0; % 3 (jb_behavior), 2 (8 pos)
