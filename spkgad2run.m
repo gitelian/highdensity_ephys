@@ -18,7 +18,7 @@ file_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to ext
 % control_pos = 9;
 
 if file_path == 0
-    derror('no directory was selected')
+    error('no directory was selected')
 end
 
 [~, fname, ~] = fileparts(file_path);
@@ -145,6 +145,7 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     % add run distance to run cell
     run_cell{trial_count, 1} = run_dist(ind0:ind1);
     progressbar(trial_count/(num_state_changes/2));
+%     f=figure()
     
     %% filter lick line and count licks
     if jb_behavior == 1
@@ -192,6 +193,9 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     
     %% find and record HSV start and end times
     if str2num(fid(4:end)) > 1728
+        if length((find(diff(dio.channelData(stim_ind.camera).data(ind0:ind1)) > 0))) ~= 2000
+            warning(['number of high speed trigger not equal to 2000 for trial: ' num2str(round(k/2))])
+        end
         hsv_times{trial_count, 1} = (find(diff(dio.channelData(stim_ind.camera).data(ind0:ind1)) > 0))/30000;
     end
     
