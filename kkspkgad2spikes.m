@@ -115,7 +115,6 @@ for k = 1:length(cluster_ids)
             clst_group_ind = ind;
         end
     end
-
     labels(k, :) = [cluster_ids(k), test.Attributes(clst_group_ind).Value];
 end
 

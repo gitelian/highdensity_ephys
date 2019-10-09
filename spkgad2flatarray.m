@@ -65,8 +65,8 @@
 
 %% User Input
 % specify the trode-channels numbers corresponding to each electrode
-% echan_num = [1,8]; % a1x32 (one)
-echan_num = [1,8; 9,16]; % a1x32 (two)
+echan_num = [1,8]; % a1x32 (one)
+% echan_num = [1,8; 9,16]; % a1x32 (two)
 % echan_num = [1,2; 3,4]; % buzaki-16 2 shank
 % echan_num = [1,16];      % lbl64 (one)
 % echan_num = [1,4];
@@ -75,8 +75,8 @@ echan_num = [1,8; 9,16]; % a1x32 (two)
 %echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
-% probe_type = {'a1x32-poly2'};
-probe_type = {'a1x32-poly2', 'a1x32-poly2'};
+probe_type = {'a1x32-poly2'};
+% probe_type = {'a1x32-poly2', 'a1x32-poly2'};
 % probe_type = {'a1x16-buzk2'};
 % probe_type = {'a1x32-poly2', 'a1x32-linear'};
 % probe_type = {'lbl64_batch02'};
@@ -88,11 +88,11 @@ probe_type = {'a1x32-poly2', 'a1x32-poly2'};
 % specify whether proceding code dynamically determines time before and
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
-control_pos = 9;
-jb_behavior = 1;
-time_before = 3.0; % 3 (jb_behavior), 1 (8 pos)
-time_after  = 3.0; % 3 (jb_behavior), 2 (8 pos)
-stim_duration = 1; % 1 for jb_behavior, 1.5 for 8-obj-pos
+control_pos = 9; % 8-pos exp: 9; linear-stage exp: 11; jb-behavior: 9
+jb_behavior = 0;
+time_before = 0.5; % 3 (jb_behavior), 1 (8 pos)
+time_after  = 0.75; % 3 (jb_behavior), 2 (8 pos)
+stim_duration = 0.5; % 1 for jb_behavior, 1.5 for 8-obj-pos
 % after the stimulus stops, how long do we wait before beginning our analysis
 t_after_stim = 0; % 0 for jb_behavior, 0.5 for 8-object-pos
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')

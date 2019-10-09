@@ -22,8 +22,8 @@
 
 %% User Input
 % specify the trode-channels numbers corresponding to each electrode
-echan_num = [1,8]; % a1x32 (one)
-% echan_num = [1,8; 9,16]; % a1x32 (two)
+% echan_num = [1,8]; % a1x32 (one)
+echan_num = [1,8; 9,16]; % a1x32 (two)
 % echan_num = [1,2; 3,4]; % buzaki-16 2 shank
 % echan_num = [1,16];      % lbl64 (one)
 % echan_num = [1,4];
@@ -32,8 +32,8 @@ echan_num = [1,8]; % a1x32 (one)
 %echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
-probe_type = {'a1x32-poly2'};
-% probe_type = {'a1x32-poly2', 'a1x32-poly2'};
+% probe_type = {'a1x32-poly2'};
+probe_type = {'a1x32-poly2', 'a1x32-poly2'};
 % probe_type = {'a1x16-buzk2'};
 % probe_type = {'a1x32-poly2', 'a1x32-linear'};
 % probe_type = {'lbl64_batch02'};

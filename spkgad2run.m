@@ -211,6 +211,10 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     
 end
 
+if length(unique(cellfun('length', hsv_times))) > 1
+    warning('HSV samples are NOT the same')
+end
+
 progressbar(1)
 fprintf('\n#####\nsaving data\n#####\n');
 save([file_path filesep dio_fname '.run'], 'run_cell', 'run_dist', ...
