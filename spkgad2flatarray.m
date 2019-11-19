@@ -97,6 +97,17 @@ stim_duration = 0.5; % 1 for jb_behavior, 1.5 for 8-obj-pos
 t_after_stim = 0; % 0 for jb_behavior, 0.5 for 8-object-pos
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
+% % LIGHT INTENSITY experiment parameters
+% dynamic_time = 0;
+% control_pos = 21; %9;
+% jb_behavior = 0;
+% time_before = 0; % 3 (jb_behavior), 1 (8 pos)
+% time_after  = 1.2; % 3 (jb_behavior), 2 (8 pos)
+% stim_duration = 0.5; % 1 for jb_behavior, 1.5 for 8-obj-pos
+% % after the stimulus stops, how long do we wait before beginning our analysis
+% t_after_stim = 0.5
+
+
 %% Main Code
 main_data_path = '/media/greg/data/neuro/';
 [main_dir_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
@@ -164,7 +175,7 @@ if neuro
             disp('Making new electrode directory')
             mkdir(new_folder_path)
         end
-        phy_dat_fname = [fid '-e' num2str(electrode)];
+        phy_dat_fname = [fid '_e' num2str(electrode)];
         fid2write = fopen([new_folder_path filesep phy_dat_fname  '.phy.dat'], 'w');
         fwrite(fid2write, dmat, 'int16');
         fclose(fid2write);
