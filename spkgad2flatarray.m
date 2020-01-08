@@ -18,68 +18,24 @@
 %   EDIT: 20170518
 %   spkgad2flatarray now calls a simplified version of spkgad2dio. all
 %   parameters in the user input section are now saved to the dio.mat file.
-%%
-
-% %% User Input
-% % specify the channels numbers corresponding to each electrode
-% % echan_num = [1,8; 9,16]; % a1x32 (two)
-% echan_num = [1,8]; % a1x32 (one)
-% % echan_num = [1,16];      % lbl64 (one)
-% % echan_num = [1,8; 9,12]; % a1x32, a1x16
-% % echan_num = [1,4; 5,12]; % a1x16, a1x32
-% %echan_num = [1,4; 5,8];  % a1x16, a1x16
-% 
-% % number of probes used
-% % probe_type = {'a1x32-poly2', 'a1x32-poly2'};
-% % probe_type = {'a1x32-poly2', 'a1x32-linear'};
-% probe_type = {'a1x32-poly2'};
-% % probe_type = {'lbl64_batch02'};
-% % probe_type = {'a1x16-linear', 'a1x32-poly2'};
-% % probe options: a1x16-linear, a1x32-linear, a1x32-poly2, Not ready: cnt64
-% 
-% % specify whether proceding code dynamically determines time before and
-% % after stimulus onset OR use the parameters below.
-% dynamic_time = 0;
-% time_before = 1.0;
-% time_after  = 2.0;
-% % time_after  = 1.2;
-% jb_behavior = 0;
-% warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
-% 
-% %% Main Code
-% main_data_path = '/media/greg/data/neuro/';
-% [main_dir_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
-% dir_path = dir([main_dir_path filesep file_name filesep '*SPK']);
-% file_path = [main_dir_path filesep file_name filesep dir_path.name];
-% 
-% if isempty(dir_path)
-%     error('not a .SPK directory!')
-% end
-% 
-% fpath = dir_path.folder;
-% fname = dir_path.name;
-% fid = fname(1:7);
-% num_chan =  (echan_num(:,2)-echan_num(:,1)+1)*4;
-% num_electrodes = size(echan_num, 1);
-% progressbar('electrodes', 'channels')
 
 %% User Input
 % specify the trode-channels numbers corresponding to each electrode
-echan_num = [1,8]; % a1x32 (one)
+% echan_num = [1,8]; % a1x32 (one)
 % echan_num = [1,8; 9,16]; % a1x32 (two)
 % echan_num = [1,2; 3,4]; % buzaki-16 2 shank
-% echan_num = [1,16];      % lbl64 (one)
+echan_num = [1,16];      % lbl64 (one)
 % echan_num = [1,4];
 % echan_num = [1,8; 9,12]; % a1x32, a1x16
 % echan_num = [1,4; 5,12]; % a1x16, a1x32
 %echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
-probe_type = {'a1x32-poly2'};
+% probe_type = {'a1x32-poly2'};
 % probe_type = {'a1x32-poly2', 'a1x32-poly2'};
 % probe_type = {'a1x16-buzk2'};
 % probe_type = {'a1x32-poly2', 'a1x32-linear'};
-% probe_type = {'lbl64_batch02'};
+probe_type = {'lbl64_standard'};
 % probe_type = {'a1x16-linear'};
 % probe_type = {'a1x16-linear', 'a1x32-poly2'};
 % probe_type = {'a1x16-linear', 'a1x32-poly2'};
@@ -88,24 +44,14 @@ probe_type = {'a1x32-poly2'};
 % specify whether proceding code dynamically determines time before and
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
-control_pos = 9; % 8-pos exp: 9; linear-stage exp: 11; jb-behavior: 9
+control_pos = 2; % 8-pos exp: 9; linear-stage exp: 11; jb-behavior: 9
 jb_behavior = 0;
-time_before = 0.5; % 3 (jb_behavior), 1 (8 pos)
-time_after  = 0.75; % 3 (jb_behavior), 2 (8 pos)
-stim_duration = 0.5; % 1 for jb_behavior, 1.5 for 8-obj-pos
+time_before = 1; % 3 (jb_behavior), 1 (8 pos), 0.5 (silencing_exp)
+time_after  = 2; % 3 (jb_behavior), 2 (8 pos), 0.75 (silencing_exp)
+stim_duration = 1; % 1 for jb_behavior, 1.5 for 8-obj-pos, 0.5 (silencing_exp)
 % after the stimulus stops, how long do we wait before beginning our analysis
-t_after_stim = 0; % 0 for jb_behavior, 0.5 for 8-object-pos
+t_after_stim = 0; % 0 for jb_behavior, 0.5 for 8-object-pos, 0 (silencing_exp)
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
-
-% % LIGHT INTENSITY experiment parameters
-% dynamic_time = 0;
-% control_pos = 21; %9;
-% jb_behavior = 0;
-% time_before = 0; % 3 (jb_behavior), 1 (8 pos)
-% time_after  = 1.2; % 3 (jb_behavior), 2 (8 pos)
-% stim_duration = 0.5; % 1 for jb_behavior, 1.5 for 8-obj-pos
-% % after the stimulus stops, how long do we wait before beginning our analysis
-% t_after_stim = 0.5
 
 
 %% Main Code
