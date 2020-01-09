@@ -24,51 +24,114 @@
 % [fpath, fname, ~] = fileparts(file_path);
 % fid = fname(1:7);
 
-main_data_path = '/media/greg/data/neuro/';
-[main_dir_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
-dir_path = dir([main_dir_path filesep file_name filesep '*LFP']);
-file_path = [main_dir_path filesep file_name filesep dir_path.name];
-dio_path = fileparts(file_path);
+% % % % % main_data_path = '/media/greg/data/neuro/';
+% % % % % [main_dir_path, file_name, file_ext] = fileparts(uigetdir(main_data_path, 'Select SPIKES folder to extract neural data'));
+% % % % % dir_path = dir([main_dir_path filesep file_name filesep '*LFP']);
+% % % % % file_path = [main_dir_path filesep file_name filesep dir_path.name];
+% % % % % dio_path = fileparts(file_path);
+% % % % % 
+% % % % % 
+% % % % % if isempty(dir_path)
+% % % % %     error('not a .LFP directory!')
+% % % % % end
+% % % % % 
+% % % % % fpath = dir_path.folder;
+% % % % % fname = dir_path.name;
+% % % % % fid = fname(1:7);
+% % % % % %%
+% % % % % 
+% % % % % % load trial digital line and find trial start and end indices
+% % % % % fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
+% % % % % % dio                 = readTrodesFileDigitalChannels(path2rec); % old way
+% % % % % % rec_file_struct = dir([file_path filesep fid '*.rec']); % change to *_dio.mat; change rec to dio
+% % % % % dio_file_struct = dir([dio_path filesep fid '*_dio.mat']); % change to *_dio.mat; change rec to dio
+% % % % % if isempty(dio_file_struct)
+% % % % %     error('no dio file found')
+% % % % % else
+% % % % %     [~, dio_fname, ~] = fileparts(dio_file_struct.name);
+% % % % % end
+% % % % % 
+% % % % % run_file_struct = dir([dio_path filesep fid '*_dio.run']);
+% % % % % if isempty(run_file_struct)
+% % % % %     error('no run file found')
+% % % % % else
+% % % % %     [~, run_fname, ~] = fileparts(run_file_struct.name);
+% % % % %     path2run          = [dio_path filesep run_fname '.run'];
+% % % % % end
+% % % % % 
+% % % % % run = load(path2run, '-mat');
+% % % % % 
+% % % % % path2dio     = [dio_path filesep dio_fname '.mat']; % change to .mat
+% % % % % 
+% % % % % load(path2dio)
+% % % % % num_electrodes      = size(echan_num, 1);
+% % % % % num_samples         = length(dio.timestamps);
+% % % % % % state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
+% % % % % num_state_changes   = length(state_change_inds);
+% % % % % stimsequence        = run.stimsequence;
+% % % % % 
+% % % % % % calculate beginning and end of trials
+% % % % % fprintf('\n#####\ncalculating beginning and end of trials\n#####\n');
+% % % % % dt_state_change = diff(state_change_inds); % computes time before each start, stop, start, ..., stop event
+% % % % % iti_duration    = dt_state_change(2:2:end); % -stop1 + start2 + ...
+% % % % % dt_before_after = uint64(iti_duration/2);
+% % % % % dt_before_after = [mean(dt_before_after); dt_before_after; mean(dt_before_after)];
 
+%% load digital line data
+file_path = uigetdir('/media/greg/data/neuro/', 'Select experiment folder to extract whisker tracking data');
 
-if isempty(dir_path)
-    error('not a .LFP directory!')
+if file_path == 0
+    error('no directory was selected')
 end
 
-fpath = dir_path.folder;
-fname = dir_path.name;
+[~, fname, ~] = fileparts(file_path);
 fid = fname(1:7);
-%%
 
-% load trial digital line and find trial start and end indices
-fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
-% dio                 = readTrodesFileDigitalChannels(path2rec); % old way
-% rec_file_struct = dir([file_path filesep fid '*.rec']); % change to *_dio.mat; change rec to dio
-dio_file_struct = dir([dio_path filesep fid '*_dio.mat']); % change to *_dio.mat; change rec to dio
+rec_file_struct = dir([file_path filesep fid '*.rec']);
+if isempty(rec_file_struct)
+    error('no .rec file found')
+else
+    [~, rec_fname, ~] = fileparts(rec_file_struct.name);
+    path2rec          = [file_path filesep rec_fname '.rec'];
+end
+
+dio_file_struct = dir([file_path filesep fid '*_dio.mat']); % change to *_dio.mat; change rec to dio
 if isempty(dio_file_struct)
     error('no dio file found')
 else
     [~, dio_fname, ~] = fileparts(dio_file_struct.name);
 end
 
-run_file_struct = dir([dio_path filesep fid '*_dio.run']);
+lfp_dir = dir([file_path filesep fid '*.LFP']);
+if isempty(lfp_dir)
+    error('no whisker tracking file found')
+else
+    [~, lfp_fname, ~] = fileparts(lfp_dir.name);
+    path2lfp_dir          = [file_path filesep lfp_fname];
+end
+
+run_file_struct = dir([file_path filesep fid '*_dio.run']);
 if isempty(run_file_struct)
     error('no run file found')
 else
     [~, run_fname, ~] = fileparts(run_file_struct.name);
-    path2run          = [dio_path filesep run_fname '.run'];
+    path2run          = [file_path filesep run_fname '.run'];
 end
 
 run = load(path2run, '-mat');
 
-path2dio     = [dio_path filesep dio_fname '.mat']; % change to .mat
-
+% load trial digital line and find trial start and end indices
+fprintf('\n#####\nloading trial digital line and finding trial start and end indices\n#####\n');
+% dio                 = readTrodesFileDigitalChannels(path2rec);
+path2dio     = [file_path filesep dio_fname '.mat']; % change to .mat
 load(path2dio)
 num_electrodes      = size(echan_num, 1);
 num_samples         = length(dio.timestamps);
 % state_change_inds   = find(diff(dio.channelData(stim_ind.trial_boolean).data) ~= 0) + 1; % indices of all state changes
+%%
 num_state_changes   = length(state_change_inds);
 stimsequence        = run.stimsequence;
+stimulus_times      = run.stimulus_times;
 
 % calculate beginning and end of trials
 fprintf('\n#####\ncalculating beginning and end of trials\n#####\n');
@@ -87,7 +150,7 @@ for electrode = 1:num_electrodes
             % Load LFP data from one channel
             fprintf(['\n#####\nloading LPFs from channel: ' num2str(chan_count) '\n#####\n']);
             fext = ['.LFP_nt' num2str(ntrode) 'ch' num2str(chan) '.dat'];
-            ffullname = [file_path filesep fid fext];
+            ffullname = [file_path filesep fid '.LFP' filesep fid fext];
             data = readTrodesExtractedDataFile(ffullname);
             decimation = data.decimation;
 
@@ -136,7 +199,7 @@ for electrode = 1:num_electrodes
     %% save data
     fprintf('\n#####\nsaving data\n#####\n');
     progressbar(electrode/num_electrodes, [], [])
-    new_folder_path = [fpath filesep fid '_e' num2str(electrode)];
+    new_folder_path = [file_path filesep fid '_e' num2str(electrode)];
     if exist(new_folder_path, 'dir') == 0
         disp('Making new electrode directory')
         mkdir(new_folder_path)

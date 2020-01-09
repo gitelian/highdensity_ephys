@@ -18,7 +18,6 @@
 %   EDIT: 20170518
 %   spkgad2flatarray now calls a simplified version of spkgad2dio. all
 %   parameters in the user input section are now saved to the dio.mat file.
-%%
 
 %% User Input
 % specify the trode-channels numbers corresponding to each electrode

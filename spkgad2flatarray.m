@@ -46,11 +46,10 @@ probe_type = {'lbl64_standard'};
 dynamic_time = 0;
 control_pos = 2; % 8-pos exp: 9; linear-stage exp: 11; jb-behavior: 9
 jb_behavior = 0;
-time_before = 1; % 3 (jb_behavior), 1 (8 pos), 0.5 (silencing_exp)
-time_after  = 2; % 3 (jb_behavior), 2 (8 pos), 0.75 (silencing_exp)
+time_before = 1; % before trial_boolean goes high. 3 (jb_behavior), 1 (8 pos), 0.5 (silencing_exp)
+time_after  = 2; % after trial_boolean goes high 3 (jb_behavior), 2 (8 pos), 0.75 (silencing_exp)
 stim_duration = 1; % 1 for jb_behavior, 1.5 for 8-obj-pos, 0.5 (silencing_exp)
-% after the stimulus stops, how long do we wait before beginning our analysis
-t_after_stim = 0; % 0 for jb_behavior, 0.5 for 8-object-pos, 0 (silencing_exp)
+t_after_stim = 0; % when to start analysis window. 0 for jb_behavior, 0.5 for 8-object-pos, 0 (silencing_exp)
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
 

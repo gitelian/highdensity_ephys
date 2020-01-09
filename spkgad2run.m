@@ -193,10 +193,13 @@ for k = 1:2:num_state_changes - 1 % jumping by 2 will always select the start ti
     
     %% find and record HSV start and end times
     if str2num(fid(4:end)) > 1728
-        if length((find(diff(dio.channelData(stim_ind.camera).data(ind0:ind1)) > 0))) ~= 2000
-            warning(['number of high speed trigger not equal to 2000 for trial: ' num2str(round(k/2))])
+        if length((find(diff(dio.channelData(stim_ind.camera).data(ind0:ind1)) > 0))) ~= 0 % skip if no HSV pulses
+            
+            if length((find(diff(dio.channelData(stim_ind.camera).data(ind0:ind1)) > 0))) ~= 2000
+                warning(['number of high speed triggers not equal to 2000 for trial: ' num2str(round(k/2))])
+            end
+            hsv_times{trial_count, 1} = (find(diff(dio.channelData(stim_ind.camera).data(ind0:ind1)) > 0))/30000;
         end
-        hsv_times{trial_count, 1} = (find(diff(dio.channelData(stim_ind.camera).data(ind0:ind1)) > 0))/30000;
     end
     
     %% add digital channels to dio_cell
