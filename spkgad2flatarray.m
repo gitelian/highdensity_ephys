@@ -21,21 +21,21 @@
 
 %% User Input
 % specify the trode-channels numbers corresponding to each electrode
-% echan_num = [1,8]; % a1x32 (one)
+echan_num = [1,8]; % a1x32 (one)
 % echan_num = [1,8; 9,16]; % a1x32 (two)
 % echan_num = [1,2; 3,4]; % buzaki-16 2 shank
-echan_num = [1,16];      % lbl64 (one)
+% echan_num = [1,16];      % lbl64 (one)
 % echan_num = [1,4];
 % echan_num = [1,8; 9,12]; % a1x32, a1x16
 % echan_num = [1,4; 5,12]; % a1x16, a1x32
 %echan_num = [1,4; 5,8];  % a1x16, a1x16
 
 % number of probes used
-% probe_type = {'a1x32-poly2'};
+probe_type = {'a1x32-poly2'};
 % probe_type = {'a1x32-poly2', 'a1x32-poly2'};
 % probe_type = {'a1x16-buzk2'};
 % probe_type = {'a1x32-poly2', 'a1x32-linear'};
-probe_type = {'lbl64_standard'};
+% probe_type = {'lbl64_standard'};
 % probe_type = {'a1x16-linear'};
 % probe_type = {'a1x16-linear', 'a1x32-poly2'};
 % probe_type = {'a1x16-linear', 'a1x32-poly2'};
@@ -44,11 +44,11 @@ probe_type = {'lbl64_standard'};
 % specify whether proceding code dynamically determines time before and
 % after stimulus onset OR use the parameters below.
 dynamic_time = 0;
-control_pos = 2; % 8-pos exp: 9; linear-stage exp: 11; jb-behavior: 9
+control_pos = 11; % 8-pos exp: 9; linear-stage exp/silencing exp: 11; jb-behavior: 9; S1/A1 jb-behavior: 2
 jb_behavior = 0;
-time_before = 1; % before trial_boolean goes high. 3 (jb_behavior), 1 (8 pos), 0.5 (silencing_exp)
-time_after  = 2; % after trial_boolean goes high 3 (jb_behavior), 2 (8 pos), 0.75 (silencing_exp)
-stim_duration = 1; % 1 for jb_behavior, 1.5 for 8-obj-pos, 0.5 (silencing_exp)
+time_before = 0.5; % before trial_boolean goes high. 3 (jb_behavior), 1 (8 pos), 0.5 (silencing_exp)
+time_after  = 0.75; % after trial_boolean goes high 3 (jb_behavior), 2 (8 pos), 0.75 (silencing_exp)
+stim_duration = 0.5; % 1 for jb_behavior, 1.5 for 8-obj-pos, 0.5 (silencing_exp)
 t_after_stim = 0; % when to start analysis window. 0 for jb_behavior, 0.5 for 8-object-pos, 0 (silencing_exp)
 warning('make sure the TIME BEFORE and TIME AFTER stimulus onset is properly set!')
 
@@ -73,7 +73,7 @@ fname = dir_path.name;
 fid = fname(1:7);
 
 if neuro
-    num_chan =  (echan_num(:,2)-echan_num(:,1)+1)*4;
+    num_chan = (echan_num(:,2)-echan_num(:,1)+1)*4;
     num_electrodes = size(echan_num, 1);
     progressbar('electrodes', '.dat channels', '.mda channels')
     
